@@ -1,0 +1,11 @@
+# Web Framework
+Flask==3.0.2
+
+# Variáveis de ambiente (para o seu .env)
+python-dotenv==1.0.1
+
+# Servidor de produção (padrão para sistemas Linux/Cloud)
+gunicorn==21.2.0
+
+# Ferramenta para testes unitários dos seus cálculos
+pytest==8.0.0
