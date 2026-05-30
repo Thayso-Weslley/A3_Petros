@@ -1,0 +1,228 @@
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	height: 100%;
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+	background: #0f1720; /* escuro neutro similar ao Gemini */
+	color: #e6eef8;
+}
+
+.app {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 32px;
+}
+
+.app-title {
+	text-align: center;
+	color: #ffffff;
+	letter-spacing: 0.2px;
+}
+
+
+.table {
+	text-align: left;
+	width: 100%;
+	max-width: 400px;
+	margin: 0 auto 20px auto;
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	border: 1px solid rgba(255,255,255,0.04);
+	border-radius: 18px;
+	padding: 28px 32px;
+	box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+}
+
+.table-label {
+	vertical-align: middle;
+	padding: 0px 12px;
+	margin: 0;
+	font-weight: 700;
+	font-size: 18px;
+	color: #cfe8ff;
+}
+
+.table-input {
+	width: 100%;
+	padding: 10px 12px;
+	border-radius: 8px;
+	border: 1px solid rgba(255,255,255,0.04);
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	color: #cfe8ff;
+	margin-bottom: 16px;
+}
+
+.table-input:focus {
+	outline: none;
+	border-color: rgba(255,255,255,0.08);
+	box-shadow: 0 0 0 2px rgba(255,255,255,0.04);
+}
+
+.table-button-submit {
+	font-weight: 700;
+	width: 100%;
+	padding: 12px;
+	border-radius: 8px;
+	border: none;
+	background: linear-gradient(180deg,#12d47d,#164899);
+	color: #cfffea;
+	cursor: pointer;
+	font-size: 18px;
+}
+
+.table-button-submit:hover {
+	background: linear-gradient(180deg,#01713b,#002267);
+	box-shadow: 0 6px 18px rgba(25, 117, 68, 0.6);
+}
+
+.container {
+	display: flex;
+	width: 100%;
+	max-width: 1100px;
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	border: 1px solid rgba(255,255,255,0.04);
+	border-radius: 18px;
+	overflow: hidden;
+	box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+}
+
+.center {
+	flex: 1 1 0;
+	padding: 28px 32px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	min-height: 60vh;
+}
+
+.topbar h1 {
+	margin: 0 0 12px 0;
+	font-size: 20px;
+	letter-spacing: 0.2px;
+}
+
+.screen-wrapper {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+
+.screen {
+	text-align: center;
+	width: 100%;
+	max-width: 740px;
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	border-radius: 8px;
+	padding: 5px 28px 28px 28px;
+	color: #cfe8ff;
+}
+
+.sidebar {
+	width: 180px;
+	min-width: 180px;
+	background: linear-gradient(180deg, rgba(12,14,20,0.8), rgba(12,14,20,0.85));
+	border-right: 1px solid rgba(255,255,255,0.03);
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	overflow: hidden;
+	transition: width 260ms ease, transform 260ms ease, opacity 260ms ease;
+}
+
+.sidebar.collapsed {
+	width: 0;
+	min-width: 0;
+	opacity: 0;
+	transform: translateX(-100%);
+	border-right: none;
+	pointer-events: none;
+}
+
+.sidebar.collapsed .side-content {
+	display: none;
+}
+
+.toggle-btn,
+.collapsed-btn {
+	position: absolute;
+	left: 18px;
+	top: 32px;
+	width: 40px;
+	height: 40px;
+	border-radius: 12px;
+	border: none;
+	background: linear-gradient(180deg,#0b1220,#111823);
+	color: #cfe8ff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+	z-index: 2;
+}
+
+.toggle-btn .chev {
+	transform: rotate(0deg);
+	transition: transform 200ms ease;
+}
+
+.sidebar.collapsed .toggle-btn .chev {
+	transform: rotate(180deg);
+}
+
+.side-content {
+	padding: 0px 18px 18px 18px;
+	flex: 1;
+}
+
+.side-content ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.side-content li {
+	margin-bottom: 12px;
+}
+
+.side-content button {
+	width: 100%;
+	text-align: left;
+	background: transparent;
+	border: none;
+	color: #cfe8ff;
+	padding: 10px 12px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.side-content button:hover {
+	background: rgba(255,255,255,0.02);
+}
+
+@media (max-width: 900px) {
+	.container {
+		flex-direction: column-reverse;
+		max-width: 820px;
+	}
+
+	.sidebar {
+		width: 100%;
+		height: 220px;
+		border-left: none;
+		border-top: 1px solid rgba(255,255,255,0.03);
+		transition: transform 260ms ease;
+	}
+
+	.sidebar.collapsed {
+		transform: translateY(88%);
+	}
+
+	.toggle-btn { left: 12px; top: -20px; }
+}
