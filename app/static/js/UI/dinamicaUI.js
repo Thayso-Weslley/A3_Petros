@@ -13,21 +13,22 @@ export class DinamicaUI {
     // O método que o seu main.js vai chamar dinamicamente
     render(containerPrincipal) {
         // Injeta o HTML específico desse cálculo na div #screen
+        console.log("Renderizando a tela de Dinâmica...");
         containerPrincipal.innerHTML = `
             <h2>🧮 Cálculos de Dinâmica</h2>
             <table class="table">
                 <tr style="width: 100%;">
-                    <td class="table-label">Massa:</td>
+                    <td class="table-label">MASSA:</td>
                     <td class="td-input"><input class="table-input" type="number" id="input-massa" placeholder="Massa (kg)"></td>
                     <td><button class="table-SI" tabindex="-1">Kg</button></td>
                 </tr>
                 <tr style="height: 60px;">
-                    <td class="table-label">Aceleração:</td>
+                    <td class="table-label">ACELERAÇÃO:</td>
                     <td class="td-input"><input class="table-input" type="number" id="input-aceleracao" placeholder="Aceleração (m/s²)"></td>
                     <td><button class="table-SI" tabindex="-1">m/s²</button></td>
                 </tr>
                 <tr style="height: 60px;">
-                    <td class="table-label">Força:</td>
+                    <td class="table-label">FORÇA:</td>
                     <td class="td-input"><input class="table-input" type="number" id="input-forca" placeholder="Força (N)"></td>
                     <td><button class="table-SI" tabindex="-1">N</button></td>
                 </tr>
