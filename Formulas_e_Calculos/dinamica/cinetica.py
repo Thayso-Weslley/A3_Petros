@@ -1,14 +1,19 @@
 # Formulas_e_calculos/dinamica/cinetica.py
 
-class SegundaLeiNewton:
+class Cinetica:
     @staticmethod
-    def calcular(forca=None, massa=None, aceleracao=None):
+    def segunda_lei(forca=None, massa=None, aceleracao=None):
         # Conta quantos campos foram preenchidos
         params = [forca, massa, aceleracao]
         preenchidos = [p for p in params if p is not None]
 
+        # Validação: Deve haver exatamente 2 campos preenchidos
         if len(preenchidos) < 2:
             return {"erro": "Forneça pelo menos dois valores."}
+        
+        # Validação: Não pode haver mais de 2 campos preenchidos
+        if len(preenchidos) > 2:
+            return {"erro": "Deixe um campo em branco."}
 
         # Lógica adaptativa: Identifica a incógnita
         if forca is None:

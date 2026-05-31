@@ -25,60 +25,6 @@ html, body {
 }
 
 
-.table {
-	text-align: left;
-	width: 100%;
-	max-width: 400px;
-	margin: 0 auto 20px auto;
-	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-	border: 1px solid rgba(255,255,255,0.04);
-	border-radius: 18px;
-	padding: 28px 32px;
-	box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-}
-
-.table-label {
-	vertical-align: middle;
-	padding: 0px 12px;
-	margin: 0;
-	font-weight: 700;
-	font-size: 18px;
-	color: #cfe8ff;
-}
-
-.table-input {
-	width: 100%;
-	padding: 10px 12px;
-	border-radius: 8px;
-	border: 1px solid rgba(255,255,255,0.04);
-	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-	color: #cfe8ff;
-	margin-bottom: 16px;
-}
-
-.table-input:focus {
-	outline: none;
-	border-color: rgba(255,255,255,0.08);
-	box-shadow: 0 0 0 2px rgba(255,255,255,0.04);
-}
-
-.table-button-submit {
-	font-weight: 700;
-	width: 100%;
-	padding: 12px;
-	border-radius: 8px;
-	border: none;
-	background: linear-gradient(180deg,#12d47d,#164899);
-	color: #cfffea;
-	cursor: pointer;
-	font-size: 18px;
-}
-
-.table-button-submit:hover {
-	background: linear-gradient(180deg,#01713b,#002267);
-	box-shadow: 0 6px 18px rgba(25, 117, 68, 0.6);
-}
-
 .container {
 	display: flex;
 	width: 100%;
@@ -148,6 +94,77 @@ html, body {
 	display: none;
 }
 
+
+.table {
+	text-align: left;
+	width: 100%;
+	max-width: 500px;
+	margin: 0 auto 20px auto;
+	background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+	border: 1px solid rgba(255,255,255,0.04);
+	border-radius: 18px;
+	padding: 28px 32px;
+	box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+}
+
+.table-label {
+	vertical-align: middle;
+	padding: 0px 12px;
+	margin: 0;
+	font-weight: 700;
+	font-size: 18px;
+	color: #cfe8ff;
+}
+
+.table-input {
+	font-weight: 600;
+	font-size: 16px;
+	text-align: right;
+	width: 100%;
+	padding: 10px 12px;
+	border-radius: 8px 0 0 8px;
+	border: 1px solid rgba(255,255,255,0.04);
+	background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+	color: #cfe8ff;
+	margin-bottom: 0;
+}
+
+.table-input:focus {
+	outline: none;
+	border-color: rgba(255,255,255,0.08);
+	box-shadow: 0 0 0 2px rgba(255,255,255,0.04);
+}
+
+.table-SI {
+	font-size: 18px;
+	font-weight: 800;
+	max-width: 60px;
+	text-align: center;
+	width: 100%;
+	padding: 10px 12px;
+	border-radius: 0% 8px 8px 0%;
+	border: none;
+	color: #cfffea;
+	background: linear-gradient(180deg,#12b0d4,#02522e);
+}
+
+.table-button-submit {
+	font-size: 20px;
+	font-weight: 800;
+	width: 100%;
+	padding: 12px;
+	border-radius: 8px;
+	border: none;
+	background: linear-gradient(180deg,#12d47d,#164899);
+	color: #cfffea;
+	cursor: pointer;
+}
+
+.table-button-submit:hover {
+	background: linear-gradient(180deg,#01713b,#002267);
+	box-shadow: 0 6px 18px rgba(25, 117, 68, 0.6);
+}
+
 .toggle-btn,
 .collapsed-btn {
 	position: absolute;
@@ -174,6 +191,50 @@ html, body {
 
 .sidebar.collapsed .toggle-btn .chev {
 	transform: rotate(180deg);
+}
+
+/* Container que agrupa o link e o botão de fechar */
+.sidebar-item-container {
+    position: relative;
+    width: 100%;
+    display: block;
+}
+
+/* O botão de navegação ocupa o espaço total e lida com o seu padding normal */
+.sidebar-item-container .screen-link {
+    width: 100%;
+    text-align: left;
+    display: block;
+    padding-right: 30px; /* Abre um recuo seguro na direita para o texto não bater no X */
+}
+
+/* O botão de excluir flutua no canto direito por cima de tudo */
+.sidebar-btn-delete {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%); /* Centraliza verticalmente perfeitamente */
+    background: transparent;
+    border: none;
+    color: #ff4d4d; /* Cor de remoção */
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 2; /* Garante que ele fique por cima do botão de navegação */
+    
+    /* Estado inicial: Escondido e transparente */
+    opacity: 0;
+    pointer-events: none; /* Evita cliques acidentais enquanto invisível */
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Efeito ao passar o mouse na linha ou no próprio botão */
+.sidebar-item-container:hover .sidebar-btn-delete {
+    color: #ff4d4d; /* Fica vermelho suave indicando perigo/remoção */
+}
+
+.sidebar-btn-delete:hover {
+    transform: scale(1.2); /* Dá um leve feedback de clique */
 }
 
 .side-content {
