@@ -193,48 +193,68 @@ html, body {
 	transform: rotate(180deg);
 }
 
-/* Container que agrupa o link e o botão de fechar */
+/* 1. O container pai (li) DEVE ser relativo para prender o absolute do X */
 .sidebar-item-container {
-    position: relative;
+    position: relative !important; 
     width: 100%;
-    display: block;
+    display: block; /* Garante que ele se comporte como uma linha cheia */
 }
 
-/* O botão de navegação ocupa o espaço total e lida com o seu padding normal */
+/* 2. O botão principal do link */
 .sidebar-item-container .screen-link {
     width: 100%;
-    text-align: left;
     display: block;
-    padding-right: 30px; /* Abre um recuo seguro na direita para o texto não bater no X */
-}
-
-/* O botão de excluir flutua no canto direito por cima de tudo */
-.sidebar-btn-delete {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%); /* Centraliza verticalmente perfeitamente */
-    background: transparent;
-    border: none;
-    color: #ff4d4d; /* Cor de remoção */
-    font-size: 1.3rem;
-    cursor: pointer;
-    line-height: 1;
-    z-index: 2; /* Garante que ele fique por cima do botão de navegação */
+    text-align: left;
     
-    /* Estado inicial: Escondido e transparente */
-    opacity: 0;
-    pointer-events: none; /* Evita cliques acidentais enquanto invisível */
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    /* Tríade que você queria para cortar o texto com (...) */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* RECUO DE SEGURANÇA: Abre espaço na direita interna para o X pousar */
+    padding-right: 40px; 
+    box-sizing: border-box; 
 }
 
-/* Efeito ao passar o mouse na linha ou no próprio botão */
-.sidebar-item-container:hover .sidebar-btn-delete {
-    color: #ff4d4d; /* Fica vermelho suave indicando perigo/remoção */
+/* 3. O botão de excluir gerado dinamicamente */
+.sidebar-btn-delete {
+    position: absolute !important;
+    right: 12px !important; 
+    left: auto !important;  
+    top: 50% !important;
+    transform: translateY(-50%) !important; 
+    
+    /* RESET DE HERANÇA */
+    width: 24px !important;        /* Tamanho fixo perfeito para uma área de clique sutil */
+    height: 24px !important;
+    padding: 0 !important;         
+    text-align: center !important; 
+
+    /* ESTILIZAÇÃO DA MICRO-BORDA (Estado Natural) */
+    background: rgba(255, 255, 255, 0.02) !important; /* Quase invisível por padrão */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important; /* Borda bem suave */
+    border-radius: 6px !important; /* Cantos levemente arredondados combinando com o app */
+    
+    color: #ff4d4d !important; 
+    font-size: 1.1rem !important;
+    cursor: pointer !important;
+    
+    /* Alinhamento perfeito do caractere × dentro da caixinha */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 0 !important;
+    
+    z-index: 10 !important; 
+    transition: all 0.15s ease !important; /* Transição suave para o efeito de hover */
 }
 
+/* INTERAÇÃO: Quando o mouse pousar diretamente em cima do 'X' */
 .sidebar-btn-delete:hover {
-    transform: scale(1.2); /* Dá um leve feedback de clique */
+    background: rgba(255, 77, 77, 0.15) !important;    /* Background avermelhado translúcido */
+    border-color: rgba(255, 77, 77, 0.4) !important;   /* Borda vermelha ganha destaque */
+    color: #ff3333 !important;                          /* O 'X' fica ligeiramente mais vivo */
+    transform: translateY(-50%) scale(1.05) !important; /* Um micro-pulso para indicar interatividade */
 }
 
 .side-content {

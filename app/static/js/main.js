@@ -4,13 +4,14 @@ import { DinamicaUI } from './UI/dinamicaUI.js';
 // import { menuUI } from './UI/menuUI.js';
 // import { MateriaisUI } from './UI/materiaisUI.js';
 
+// O código principal do aplicativo, responsável por gerenciar a interface e o estado global
 document.addEventListener('DOMContentLoaded', () => {
     const screen = document.getElementById('screen');
     const listaDinamica = document.getElementById('lista-dinamica');
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleBtn');
 
-    // Mapeamento das instâncias das classes (Sua ideia de blocos autônomos)
+    // Mapeamento das instâncias das classes (os componentes de UI)
     const componentes = {
         // 'menu': new menuUI(),
         'dinamica': new DinamicaUI(),
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 'materiais': new MateriaisUI()
     };
 
-    // Array de estado: controla quais calculadoras aparecem na sidebar
+    // Array de estado: controla quais itens aparecem na sidebar
     let calculadorasAtivas = ['dinamica'];
 
     // FUNÇÕES DE GERENCIAMENTO DE ESTADO (DESIGN PATTERN: STATE MANAGEMENT)
@@ -80,23 +81,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 comp.render(screen);
             });
 
-            // Botão de Excluir (Remove da lista)
-            const btnDelete = document.createElement('button');
-            btnDelete.className = 'sidebar-btn-delete';
-            btnDelete.innerHTML = '&times;'; // Renderiza o caractere de multiplicação "×" (X elegante)
-            btnDelete.title = `Remover ${comp.nomeMenu}`;
-
-            // O Evento de clique aciona o gerenciador e dá o refresh automático
-            btnDelete.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que o clique dispare o btnLink por acidente
-                window.EngenhApp.removerModulo(chave);
-            });
-
-            // Monta a estrutura injetando os dois botões no mesmo item de lista
             li.appendChild(btnLink);
-            li.appendChild(btnDelete);
-            listaDinamica.appendChild(li);
- 
+
+            // FUNÇÃO INTERNA: Cria o botão fisicamente no DOM
+            const criarBotaoExcluir = () => {
+                // Evita duplicar o botão se ele já existir por algum motivo
+                if (li.querySelector('.sidebar-btn-delete')) return;
+
+                const btnDelete = document.createElement('button');
+                btnDelete.className = 'sidebar-btn-delete';
+                btnDelete.innerHTML = '&times;'; 
+                btnDelete.title = `Remover ${comp.nomeMenu}`;
+
+                btnDelete.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Impede de disparar o clique do btnLink
+                    window.EngenhApp.removerModulo(chave);
+                });
+
+                li.appendChild(btnDelete);
+            };
+
+            // FUNÇÃO INTERNA: Destrói o botão removendo-o do HTML
+            const removerBotaoExcluir = () => {
+                const btnExistente = li.querySelector('.sidebar-btn-delete');
+                if (btnExistente) {
+                    btnExistente.remove();
+                }
+            };
+
+            // VINCULA OS CICLOS DE VIDA AOS EVENTOS DE FOCO E MOUSE
+            li.addEventListener('mouseenter', criarBotaoExcluir);
+            li.addEventListener('mouseleave', removerBotaoExcluir);
+            li.addEventListener('focusin', criarBotaoExcluir);
+            li.addEventListener('focusout', removerBotaoExcluir);
+
+            listaDinamica.appendChild(li); 
         });
     }
 
