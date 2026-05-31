@@ -7,9 +7,38 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Bem-vindo ao EngenhApp</h1>
-    
-    <!-- Referência correta para o JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <div class="app">
+        <button id="toggleBtn" class="toggle-btn collapsed-btn" aria-expanded="true" title="Expandir/retrair painel">
+            <span class="chev">❯</span>
+        </button>
+        <main class="container">
+            <aside class="sidebar" id="sidebar">
+                <h3 class="app-title">EngenhApp</h3>
+                <nav class="side-content">
+                    <ul id="itens-fixos">
+                        <li><button class="screen-link" data-screen="buscar-formula">Buscar Formula</button></li>
+                        <li><button class="screen-link" data-screen="lista-online">Lista On-line</button></li>
+                        <li><button class="screen-link" data-screen="minhas-listas">Minhas Listas</button></li>
+                    </ul>
+                    
+                    <hr class="sidebar-divider"> <ul id="lista-dinamica">
+                        </ul>
+                </nav>
+            </aside>
+
+            <section class="center">
+                <div class="screen-wrapper">
+                    <div id="screen" class="screen">
+                        <!-- Aqui você pode trocar o conteúdo para diferentes telas -->
+                        <h2>Tela principal</h2>
+                        <p>Área central onde as diferentes telas serão renderizadas.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Referência para o JS de UI -->
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
