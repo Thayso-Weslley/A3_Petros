@@ -5,6 +5,7 @@
     <title>EngenhApp</title>
     <!-- Referência correta para o CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
 </head>
 <body>
     <div class="app">
@@ -16,7 +17,7 @@
                 <h3 class="app-title">EngenhApp</h3>
                 <nav class="side-content">
                     <ul id="itens-fixos">
-                        <li><button class="screen-link" data-screen="buscar-formula">Buscar Formula</button></li>
+                        <li><button class="screen-link" id="btn-buscar-formula" data-screen="buscar-formula">Buscar Formula</button></li>
                         <li><button class="screen-link" data-screen="lista-online">Lista On-line</button></li>
                         <li><button class="screen-link" data-screen="minhas-listas">Minhas Listas</button></li>
                     </ul>
