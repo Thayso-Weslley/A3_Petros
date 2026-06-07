@@ -38,21 +38,21 @@
           "valor": 120,
           "unidade": "W/(m·K)"
         },
-        "calor_especifico": {
+        "calor_específico": {
           "valor": 750,
           "unidade": "J/(kg·K)"
         },
-        "expansao_termica": {
+        "expansão_térmica": {
           "valor": 4.0,
           "unidade": "µm/(m·K)"
         },
-        "ponto_fusao": {
+        "ponto_fusão": {
           "valor": 2730,
           "unidade": "°C"
         }
       },
       "propriedades_eletricas": {
-        "condutividade_eletrica": {
+        "condutividade_elétrica": {
           "valor": 100,
           "unidade": "S/m"
         },

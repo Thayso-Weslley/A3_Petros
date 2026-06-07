@@ -6,6 +6,7 @@
     <!-- Referência correta para o CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogo.css') }}">
 </head>
 <body>
     <div class="app">
@@ -18,8 +19,8 @@
                 <nav class="side-content">
                     <ul id="itens-fixos">
                         <li><button class="screen-link" id="btn-buscar-formula" data-screen="buscar-formula">Buscar Formula</button></li>
-                        <li><button class="screen-link" data-screen="lista-online">Lista On-line</button></li>
-                        <li><button class="screen-link" data-screen="minhas-listas">Minhas Listas</button></li>
+                        <li><button class="screen-link" id="btn-lista-online" data-screen="lista-online">🌐 Lista On-line</button></li>
+                        <li><button class="screen-link" data-screen="minhas-listas">🔎 Minhas Listas</button></li>
                     </ul>
                     
                     <hr class="sidebar-divider"> <ul id="lista-dinamica">

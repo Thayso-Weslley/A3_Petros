@@ -1,0 +1,196 @@
+/* Layout do Catálogo */
+.catalogo-header {
+    text-align: left;
+    margin-bottom: 24px;
+}
+
+.catalogo-search-box {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.catalogo-search-box .search-icon {
+    margin-right: 12px;
+    opacity: 0.5;
+}
+
+.catalogo-search-box input {
+    background: transparent;
+    border: none;
+    color: #e6eef8;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+}
+
+/* Cards da Listagem */
+.catalogo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+
+.material-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.material-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.material-card h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.15rem;
+    color: #ffffff;
+}
+
+.material-categoria {
+    font-size: 0.8rem;
+    background: rgba(18, 176, 212, 0.1);
+    color: #cfffea;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.material-categoria.grande {
+    font-size: 1rem;
+    padding: 4px 12px;
+}
+
+.material-tags {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-badge {
+    font-size: 0.7rem;
+    background: rgba(255,255,255,0.04);
+    color: #cfe8ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.btn-ver-ficha {
+    background: transparent;
+    border: none;
+    color: #12b0d4;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0;
+    margin-top: 20px;
+    text-align: left;
+}
+
+/* Estrutura da Ficha Técnica */
+.ficha-wrapper {
+    text-align: left;
+    width: 100%;
+}
+
+.btn-voltar {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #cfe8ff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-bottom: 24px;
+    transition: background 0.2s;
+}
+
+.btn-voltar:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+.ficha-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 18px;
+    margin-bottom: 24px;
+}
+
+.ficha-meta {
+    text-align: right;
+    color: rgba(207, 232, 255, 0.6);
+}
+
+/* Grid de Seções de Propriedades */
+.ficha-propriedades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.propriedade-secao {
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.propriedade-secao h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding-bottom: 8px;
+}
+
+.tabela-propriedades {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-propriedades td {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    font-size: 0.95rem;
+}
+
+.prop-nome {
+    color: rgba(207, 232, 255, 0.7);
+    font-weight: 500;
+}
+
+.prop-valor {
+    text-align: right;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.prop-unidade {
+    color: #12b0d4;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.ficha-acoes {
+    margin-top: 24px;
+    max-width: 400px;
+}

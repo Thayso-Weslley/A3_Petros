@@ -2,6 +2,7 @@
 import { menuUI } from './UI/menuUI.js';
 import { DinamicaUI } from './UI/dinamicaUI.js';
 import { CoreUI } from './UI.js';
+import { MateriaisUI } from './UI/materiaisUI.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. MAPEAMENTO DE DOM
@@ -10,20 +11,24 @@ document.addEventListener('DOMContentLoaded', () => {
         listaDinamica: document.getElementById('lista-dinamica'),
         sidebar: document.getElementById('sidebar'),
         toggleBtn: document.getElementById('toggleBtn'),
-        btnBuscarFormula: document.getElementById('btn-buscar-formula')
+        btnBuscarFormula: document.getElementById('btn-buscar-formula'),
+        btnListaOnline: document.getElementById('btn-lista-online')
     };
 
     // 2. INJEÇÃO DE DEPENDÊNCIAS
     const componentes = { 
         'dinamica': new DinamicaUI(),
         // 'estatica': new EstaticaUI(),
-        // 'materiais': new MateriaisUI()
+        // 'lista-online': new MateriaisUI()
     };
+
+    // 3. COMPONENTES FIXOS (Instanciado aqui apenas para gerenciar as telas fixas)
+    const telaListaOnline = new MateriaisUI();
     
-    // 3. ESTADO GLOBAL
+    // 4. ESTADO GLOBAL
     let calculadorasAtivas = [''];
 
-    // 4. BARRAMENTO GLOBAL (API DO SISTEMA)
+    // BARRAMENTO GLOBAL (API DO SISTEMA)
     window.EngenhApp = {
         adicionarModulo: (chave) => {
             if (componentes[chave] && !calculadorasAtivas.includes(chave)) {
@@ -54,11 +59,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (DOM.btnListaOnline) {
+        DOM.btnListaOnline.addEventListener('click', () => {
+            telaListaOnline.render(DOM.screen);
+        });
+    }
+
     // Evento dos botões fixos da sidebar
     document.querySelectorAll('#itens-fixos .screen-link').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget.dataset.screen;
-            CoreUI.renderScreenFixo(DOM.screen, target);
+            // Ignora o 'lista-online' aqui, pois ele já tem o listener dedicado acima
+            if (target !== 'lista-online') {
+                CoreUI.renderScreenFixo(DOM.screen, target);
+            }
         });
     });
 
