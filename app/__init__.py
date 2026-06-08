@@ -7,6 +7,8 @@ def create_app():
     
     # Importação tardia e registro do Blueprint
     from app.api.dinamica_routes import dinamica_bp
+    from app.api.repositorio_base_routes import repositorio_base_bp
     app.register_blueprint(dinamica_bp)
+    app.register_blueprint(repositorio_base_bp)
 
     return app

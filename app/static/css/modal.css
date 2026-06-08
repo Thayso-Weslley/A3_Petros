@@ -1,0 +1,89 @@
+/* O fundo escuro que cobre o app inteiro */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(2, 6, 23, 0.8); /* Fundo escurecido */
+    backdrop-filter: blur(4px);      /* Efeito de desfoque elegante */
+    z-index: 9999;                   /* Camada mais alta possível */
+    
+    /* Flexbox para centralizar a janela no meio da tela */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* A janela do modal */
+.modal-container {
+    width: 100%;
+    max-width: 500px;
+    background: #0f1720;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Mantém os cantos arredondados */
+}
+
+/* A área de pesquisa (Header do Modal) */
+.modal-search-bar {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.01);
+}
+
+.modal-search-icon {
+    font-size: 1.2rem;
+    color: #cfe8ff;
+    margin-right: 12px;
+    opacity: 0.6;
+}
+
+.modal-search-input {
+    flex: 1; /* Ocupa todo o resto do espaço horizontal */
+    background: transparent;
+    border: none;
+    color: #e6eef8;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.modal-search-input::placeholder {
+    color: rgba(207, 232, 255, 0.4);
+}
+
+/* A lista de módulos */
+.modal-list {
+    max-height: 400px;
+    overflow-y: auto; /* Cria barra de rolagem se tiver muitos itens */
+    padding: 12px;
+    margin: 0;
+    list-style: none;
+}
+
+/* Os itens clicáveis da lista */
+.modal-list-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    color: #cfe8ff;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+.modal-list-item:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+/* Feedback para itens que já estão na sidebar */
+.modal-list-item.ativo {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
