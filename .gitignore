@@ -1,5 +1,22 @@
-# Ignora o ambiente virtual
-.venv/
+# --- Ambiente Virtual ---
 venv/
-# Ignora arquivos de cache do Python
+ENV/
+env/
+
+# --- Configurações Sensíveis (Variáveis de Ambiente) ---
+.env
+.flaskenv
+
+# --- Python Cache ---
 __pycache__/
+*.py[cod]
+*$py.class
+
+# --- Logs e Dados Temporários ---
+*.log
+instance/
+.pytest_cache/
+
+# --- Arquivos de Sistema (Opcional, mas recomendado) ---
+.DS_Store
+Thumbs.db
