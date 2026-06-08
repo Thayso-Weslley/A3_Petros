@@ -1,6 +1,6 @@
 # Formulas_e_calculos/dinamica/lei_de_Newton.py
 
-class LeiDeNewton:
+class lei_de_Newton:
     @staticmethod
     def segunda_lei(forca=None, massa=None, aceleracao=None):
         # Conta quantos campos foram preenchidos

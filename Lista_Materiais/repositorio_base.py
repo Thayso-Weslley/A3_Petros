@@ -13,14 +13,6 @@ class RepositorioBase:
     def obter_todos_materiais(self):
         """Varre a pasta catalogo_json e retorna uma lista com o conteúdo de todos os JSONs"""
         lista_materiais = []
-        
-        # --- DIAGNÓSTICO TEMPORÁRIO ---
-        print(f"\n[DEBUG ENG] Olhando para a pasta: {self.pasta_catalogo}")
-        if os.path.exists(self.pasta_catalogo):
-            print(f"[DEBUG ENG] Conteúdo real detectado na pasta: {os.listdir(self.pasta_catalogo)}")
-        else:
-            print(f"[DEBUG ENG] ATENÇÃO: Essa pasta NÃO EXISTE no disco.")
-        # ------------------------------
 
         if not os.path.exists(self.pasta_catalogo):
             return lista_materiais
