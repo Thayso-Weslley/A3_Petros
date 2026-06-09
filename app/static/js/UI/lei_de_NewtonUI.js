@@ -1,6 +1,6 @@
 // import { request } from '../api.js'; // Caso queira usar o manipulador central de fetch
 
-export class DinamicaUI {
+export class lei_de_NewtonUI {
 
     constructor() {
         // Você pode inicializar variáveis de estado internas do componente aqui se precisar
@@ -8,7 +8,7 @@ export class DinamicaUI {
     }
 
     // Propriedade para o nome do menu, usada na geração da sidebar
-    nomeMenu = "🧮 Dinâmica";
+    nomeMenu = "2° Lei de Newton";
 
     // O método que o seu main.js vai chamar dinamicamente
     render(containerPrincipal) {
@@ -81,7 +81,7 @@ export class DinamicaUI {
 
             // Comunicação com o backend usando o barramento api.js ou fetch direto
             try {
-                const response = await fetch('/api/dinamica/calcular', {
+                const response = await fetch('/api/lei_de_newton/calcular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

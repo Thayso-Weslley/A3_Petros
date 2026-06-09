@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from Formulas_e_Calculos.dinamica.potencia import Potencia
 
-potencia_bp = Blueprint('potencia_api', __name__, url_prefix='/api/dinamica')
+potencia_bp = Blueprint('potencia_api', __name__, url_prefix='/api/potencia')
 
 @potencia_bp.route('/calcular', methods=['POST'])
 def calcular_potencia():
