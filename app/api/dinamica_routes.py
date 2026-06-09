@@ -1,7 +1,7 @@
 # app/api/dinamica_routes.py
 from flask import Blueprint, request, jsonify
 # Importamos a classe de lógica pura
-from Formulas_e_Calculos.dinamica.cinetica import Cinetica
+from Formulas_e_Calculos.dinamica.lei_de_Newton import lei_de_Newton
 
 # Criamos o Blueprint. O primeiro argumento é o nome interno, e url_prefix agrupa as rotas
 dinamica_bp = Blueprint('dinamica_api', __name__, url_prefix='/api/dinamica')
@@ -16,7 +16,7 @@ def calcular_dinamica():
     aceleracao = dados.get('aceleracao')
     
     # Chama a classe puramente matemática usando os dados recebidos
-    resultado = Cinetica.segunda_lei(forca=forca, massa=massa, aceleracao=aceleracao)
+    resultado = lei_de_Newton.segunda_lei(forca=forca, massa=massa, aceleracao=aceleracao)
     
     # Devolve a resposta estruturada em JSON para o front-end
     return jsonify(resultado)

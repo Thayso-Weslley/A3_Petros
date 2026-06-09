@@ -1,6 +1,6 @@
-class QuantDeMovimento:
+class Quantidade_De_Movimento:
     @staticmethod
-    def calcular_quantidade_movimento(q=None, massa=None, velocidade=None):
+    def calcular_quantidade_de_movimento(q=None, massa=None, velocidade=None):
 
         params = [q, massa, velocidade]
         preenchidos = [p for p in params if p is not None]

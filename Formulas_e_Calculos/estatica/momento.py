@@ -1,6 +1,6 @@
 class Momento:
     @staticmethod
-    def calcular_momento_forca(momento=None, forca=None, distancia=None):
+    def calcular_momento(momento=None, forca=None, distancia=None):
 
         params = [momento, forca, distancia]
         preenchidos = [p for p in params if p is not None]

@@ -1,4 +1,4 @@
-class EnergiaCinetica:
+class Energia_Cinetica:
     @staticmethod
     def calcular_energia_cinetica(energia=None, massa=None, velocidade=None):
 
