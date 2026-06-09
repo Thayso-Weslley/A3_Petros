@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify
 from Formulas_e_Calculos.dinamica.lei_de_Newton import lei_de_Newton
 
 # Criamos o Blueprint. O primeiro argumento é o nome interno, e url_prefix agrupa as rotas
-lei_de_Newton_bp = Blueprint('dinamica_api', __name__, url_prefix='/api/dinamica')
+lei_de_Newton_bp = Blueprint('lei_de_newton_api', __name__, url_prefix='/api/lei_de_newton')
 
 @lei_de_Newton_bp.route('/calcular', methods=['POST'])
 def calcular_lei_de_Newton():

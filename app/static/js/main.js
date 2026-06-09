@@ -1,6 +1,6 @@
 // Importando seus blocos/componentes autônomos da pasta UI
 import { menuUI } from './UI/menuUI.js';
-import { DinamicaUI } from './UI/dinamicaUI.js';
+import { lei_de_NewtonUI } from './UI/lei_de_NewtonUI.js';
 import { CoreUI } from './UI.js';
 import { MateriaisUI } from './UI/materiaisUI.js';
 
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. INJEÇÃO DE DEPENDÊNCIAS
     const componentes = { 
-        'dinamica': new DinamicaUI(),
+        '2° lei de Newton': new lei_de_NewtonUI(),
         // 'estatica': new EstaticaUI(),
         // 'lista-online': new MateriaisUI()
     };
