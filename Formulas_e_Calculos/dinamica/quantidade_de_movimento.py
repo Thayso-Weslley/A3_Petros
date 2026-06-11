@@ -1,4 +1,4 @@
-class Quantidade_De_Movimento:
+class quantidade_de_movimento:
     @staticmethod
     def calcular_quantidade_de_movimento(q=None, massa=None, velocidade=None):
 
@@ -12,7 +12,7 @@ class Quantidade_De_Movimento:
             return {"erro": "Deixe um campo em branco."}
 
         if q is None:
-            return {"quantidade_movimento": massa * velocidade}
+            return {"quantidade_de_movimento": massa * velocidade}
 
         if massa is None:
             return {"massa": q / velocidade}
