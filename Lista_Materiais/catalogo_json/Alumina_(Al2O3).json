@@ -1,0 +1,28 @@
+{
+  "id": "mat-cer-001",
+  "nome": "Alumina (Al2O3)",
+  "categoria": "Cerâmico",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["alta dureza", "isolamento elétrico", "resistência ao desgaste", "alta temperatura"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 3.95, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 380, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.22, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 2500, "unidade": "MPa"},
+    "limite_tracao": {"valor": 300, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 210, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 30, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 880, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 8.0, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 2072, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 0.000000000001, "unidade": "S/m"},
+    "resistividade": {"valor": 1000000000000, "unidade": "Ω·cm"}
+  }
+}

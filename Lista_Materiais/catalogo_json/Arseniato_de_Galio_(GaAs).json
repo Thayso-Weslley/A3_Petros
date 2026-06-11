@@ -1,0 +1,28 @@
+{
+  "id": "mat-semic-004",
+  "nome": "Arseniato de Galio (GaAs)",
+  "categoria": "Semicondutor",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["alta mobilidade eletrônica", "RF", "fotônica", "alta frequência"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 5.32, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 85, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.31, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 1200, "unidade": "MPa"},
+    "limite_tracao": {"valor": 110, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 70, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 55, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 330, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 5.8, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 1511, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 1000000, "unidade": "S/m"},
+    "resistividade": {"valor": 0.0001, "unidade": "Ω·cm"}
+  }
+}

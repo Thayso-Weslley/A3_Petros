@@ -1,0 +1,28 @@
+{
+  "id": "mat-met-007",
+  "nome": "Bronze Fosforoso",
+  "categoria": "Metálico",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["resistência à fadiga", "molas", "desgaste", "condutividade"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 8.85, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 110, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.34, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 550, "unidade": "MPa"},
+    "limite_tracao": {"valor": 400, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 250, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 60, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 380, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 18.0, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 950, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 8000000, "unidade": "S/m"},
+    "resistividade": {"valor": 0.00000012, "unidade": "Ω·cm"}
+  }
+}

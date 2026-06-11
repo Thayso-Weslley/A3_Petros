@@ -1,0 +1,28 @@
+{
+  "id": "mat-comp-001",
+  "nome": "Kevlar",
+  "categoria": "Compósito",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["alta tenacidade", "impacto", "leveza", "proteção balística"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 1.44, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 70, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.36, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 220, "unidade": "MPa"},
+    "limite_tracao": {"valor": 3620, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 120, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 0.04, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 1400, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 4.0, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 500, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 0.0000000000005, "unidade": "S/m"},
+    "resistividade": {"valor": 2000000000000, "unidade": "Ω·cm"}
+  }
+}

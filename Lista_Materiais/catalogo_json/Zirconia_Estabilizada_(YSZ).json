@@ -1,0 +1,28 @@
+{
+  "id": "mat-cer-004",
+  "nome": "Zircônia Estabilizada (YSZ)",
+  "categoria": "Cerâmico",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["barreira térmica", "estabilidade térmica", "isolamento", "resistência química"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 6.05, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 210, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.30, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 2200, "unidade": "MPa"},
+    "limite_tracao": {"valor": 200, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 160, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 2.5, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 500, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 10.5, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 2715, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 0.00000000001, "unidade": "S/m"},
+    "resistividade": {"valor": 100000000000, "unidade": "Ω·cm"}
+  }
+}

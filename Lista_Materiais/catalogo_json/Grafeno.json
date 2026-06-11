@@ -1,0 +1,28 @@
+{
+  "id": "mat-nano-001",
+  "nome": "Grafeno",
+  "categoria": "Nanomaterial",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["alta mobilidade", "leveza", "resistência mecânica", "condutividade"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 2.20, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 1000, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.16, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 13000, "unidade": "MPa"},
+    "limite_tracao": {"valor": 130000, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 5000, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 5000, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 700, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 0.5, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 3650, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 1000000, "unidade": "S/m"},
+    "resistividade": {"valor": 0.000001, "unidade": "Ω·cm"}
+  }
+}

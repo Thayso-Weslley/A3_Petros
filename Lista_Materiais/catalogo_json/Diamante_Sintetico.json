@@ -1,0 +1,28 @@
+{
+  "id": "mat-cer-005",
+  "nome": "Diamante Sintético",
+  "categoria": "Superduro",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["dureza máxima", "alta condutividade térmica", "corte de precisão", "resistência ao desgaste"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 3.52, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 1050, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.10, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 6000, "unidade": "MPa"},
+    "limite_tracao": {"valor": 1500, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 500, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 2000, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 520, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 1.0, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 3550, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 0.0000000001, "unidade": "S/m"},
+    "resistividade": {"valor": 10000000000, "unidade": "Ω·cm"}
+  }
+}
