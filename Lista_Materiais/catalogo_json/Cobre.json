@@ -1,0 +1,28 @@
+{
+  "id": "mat-met-005",
+  "nome": "Cobre",
+  "categoria": "Metálico",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["condutividade elétrica", "condutividade térmica", "maleabilidade", "soldagem"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 8.96, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 110, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.34, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 220, "unidade": "MPa"},
+    "limite_tracao": {"valor": 210, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 150, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 401, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 385, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 16.5, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 1085, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 59600000, "unidade": "S/m"},
+    "resistividade": {"valor": 0.000000017, "unidade": "Ω·cm"}
+  }
+}

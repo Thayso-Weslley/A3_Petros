@@ -1,0 +1,28 @@
+{
+  "id": "mat-met-002",
+  "nome": "Aço Inoxidável 316",
+  "categoria": "Metálico",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["ambiente marinho", "corrosão", "durabilidade", "higiene"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 8.00, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 193, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.30, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 205, "unidade": "MPa"},
+    "limite_tracao": {"valor": 515, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 305, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 16.3, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 500, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 16.0, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 1400, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 1400000, "unidade": "S/m"},
+    "resistividade": {"valor": 0.00000071, "unidade": "Ω·cm"}
+  }
+}

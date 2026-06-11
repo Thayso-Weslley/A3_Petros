@@ -1,0 +1,28 @@
+{
+  "id": "mat-pol-002",
+  "nome": "PTFE",
+  "categoria": "Polímero",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["baixo atrito", "resistência química", "antiaderente", "isolamento"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 2.20, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 0.5, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.46, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 30, "unidade": "MPa"},
+    "limite_tracao": {"valor": 25, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 18, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 0.25, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 1000, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 120.0, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 327, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 0.0000000000001, "unidade": "S/m"},
+    "resistividade": {"valor": 10000000000000, "unidade": "Ω·cm"}
+  }
+}

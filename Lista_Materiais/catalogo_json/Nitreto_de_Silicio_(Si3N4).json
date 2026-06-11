@@ -1,0 +1,28 @@
+{
+  "id": "mat-cer-003",
+  "nome": "Nitreto de Silício (Si3N4)",
+  "categoria": "Cerâmico",
+  "metadados": {
+    "data_adicao": "2026-06-11",
+    "fonte_referencia": "Ficha técnica consolidada - Catálogo A3 Petros",
+    "tags": ["choque térmico", "baixa densidade", "alta resistência", "alta rotação"]
+  },
+  "propriedades_mecanicas": {
+    "densidade": {"valor": 3.17, "unidade": "g/cm³"},
+    "modulo_elasticidade": {"valor": 305, "unidade": "GPa"},
+    "coeficiente_poisson": {"valor": 0.27, "unidade": "adimensional"},
+    "limite_compressao": {"valor": 3000, "unidade": "MPa"},
+    "limite_tracao": {"valor": 900, "unidade": "MPa"},
+    "limite_cisalhamento": {"valor": 400, "unidade": "MPa"}
+  },
+  "propriedades_termicas": {
+    "condutividade_termica": {"valor": 28, "unidade": "W/(m·K)"},
+    "calor_específico": {"valor": 710, "unidade": "J/(kg·K)"},
+    "expansão_térmica": {"valor": 3.2, "unidade": "µm/(m·K)"},
+    "ponto_fusão": {"valor": 1900, "unidade": "°C"}
+  },
+  "propriedades_eletricas": {
+    "condutividade_elétrica": {"valor": 0.0000000000005, "unidade": "S/m"},
+    "resistividade": {"valor": 2000000000000, "unidade": "Ω·cm"}
+  }
+}
