@@ -1,21 +1,17 @@
-// import { request } from '../api.js'; // Caso queira usar o manipulador central de fetch
+// conexão com o arquivo excluivo de comunicação com o backend, onde estão as funções de chamada de rede para a API REST do Flask
+import { API } from '../api.js';
 
 export class lei_de_NewtonUI {
-
     constructor() {
-        // Você pode inicializar variáveis de estado internas do componente aqui se precisar
         this.cacheLocal = null;
     }
 
-    // Propriedade para o nome do menu, usada na geração da sidebar
     nomeMenu = "2° Lei de Newton";
 
-    // O método que o seu main.js vai chamar dinamicamente
     render(containerPrincipal) {
-        // Injeta o HTML específico desse cálculo na div #screen
         console.log("Renderizando a tela de Dinâmica...");
         containerPrincipal.innerHTML = `
-            <h2>🧮 Cálculos de Dinâmica</h2>
+            <h2>2° Lei de Newton</h2>
             <table class="table">
                 <tr style="width: 100%;">
                     <td class="table-label">MASSA:</td>
@@ -37,11 +33,9 @@ export class lei_de_NewtonUI {
                 </tr>
             </table>
             <p>Deixe em branco o campo que deseja calcular.</p>
-
             <div id="resultado-container"></div>
         `;
 
-        // Ativa os Event Listeners DESTA tela específica imediatamente após injetar o HTML
         this.configurarEventos();
     }
 
@@ -50,17 +44,13 @@ export class lei_de_NewtonUI {
         if (!btn) return;
 
         btn.addEventListener('click', async () => {
-            // teste de envio
             console.log("Botão de cálculo clicado! Preparando dados...");
-            
             const resContainer = document.getElementById('resultado-container');
             
-            // 1. Captura os elementos do DOM para usar na leitura e no preenchimento
             const inputMassa = document.getElementById('input-massa');
             const inputAceleracao = document.getElementById('input-aceleracao');
             const inputForca = document.getElementById('input-forca');
             
-            // Monta o payload interpretando campos vazios como null (Sua ideia do Solver!)
             const payload = {
                 massa: parseFloat(inputMassa.value) || null,
                 aceleracao: parseFloat(inputAceleracao.value) || null,
@@ -77,19 +67,11 @@ export class lei_de_NewtonUI {
                 return;
             }
 
-            console.log("Payload enviado:")
-
-            // Comunicação com o backend usando o barramento api.js ou fetch direto
             try {
-                const response = await fetch('/api/lei_de_newton/calcular', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const dados = await response.json();
+                // A UI delega a transmissão de rede para o api.js e apenas aguarda o dado pronto
+                const dados = await API.dinamica.calcularSegundaLei(payload);
                 
-                // 2. Lógica de Preenchimento Automático
-                // O JavaScript checa qual chave veio no objeto de resposta e atualiza o .value do input correspondente
+                // Lógica de Preenchimento Automático na tela
                 if (dados.massa !== undefined) {
                     inputMassa.value = dados.massa;
                 } else if (dados.aceleracao !== undefined) {
@@ -98,11 +80,10 @@ export class lei_de_NewtonUI {
                     inputForca.value = dados.forca;
                 }
                 
-                // Atualiza também o container de texto inferior para dar o feedback completo
                 resContainer.innerHTML = `<strong>Cálculo concluído com sucesso!</strong>`;
 
             } catch (error) {
-                alert("Erro ao conectar com o servidor: ");
+                alert("Erro ao processar o cálculo no servidor.");
                 console.error(error);
             }
         });

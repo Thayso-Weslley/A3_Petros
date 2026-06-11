@@ -11,7 +11,14 @@ def calcular_momento():
     momento = dados.get('momento')
     forca = dados.get('forca')
     distancia = dados.get('distancia')
+    angulo = dados.get('angulo') # <= Adicionado: Captura o ângulo enviado pelo JS
 
-    resultado = Momento.calcular_momento(momento=momento, forca=forca, distancia=distancia)
+    # Adicionado o 'angulo=angulo' no final da chamada do método
+    resultado = Momento.calcular_momento(
+        momento=momento, 
+        forca=forca, 
+        distancia=distancia, 
+        angulo=angulo
+    )
 
     return jsonify(resultado)

@@ -1,8 +1,11 @@
 // Importando seus blocos/componentes autônomos da pasta UI
 import { menuUI } from './UI/menuUI.js';
-import { lei_de_NewtonUI } from './UI/lei_de_NewtonUI.js';
 import { CoreUI } from './UI.js';
 import { MateriaisUI } from './UI/materiaisUI.js';
+import { lei_de_NewtonUI } from './UI/lei_de_NewtonUI.js';
+import { energia_cineticaUI } from './UI/energia_cineticaUI.js';
+import { pesoUI } from './UI/pesoUI.js';
+import { momentoUI } from './UI/momentoUI.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. MAPEAMENTO DE DOM
@@ -18,8 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. INJEÇÃO DE DEPENDÊNCIAS
     const componentes = { 
         '2° lei de Newton': new lei_de_NewtonUI(),
-        // 'estatica': new EstaticaUI(),
-        // 'lista-online': new MateriaisUI()
+        'Energia Cinética': new energia_cineticaUI(),
+        'Força Peso': new pesoUI(),
+        "Momento de uma Força": new momentoUI()
     };
 
     // 3. COMPONENTES FIXOS (Instanciado aqui apenas para gerenciar as telas fixas)
