@@ -12,7 +12,7 @@ export class energia_cineticaUI {
     render(containerPrincipal) {
         console.log("Renderizando a tela de Energia Cinética...");
         containerPrincipal.innerHTML = `
-            <h2>Energia Cinética</h2>
+            <h2>🧮 Energia Cinética</h2>
             <table class="table">
                 <tr style="width: 100%;">
                     <td class="table-label">MASSA:</td>
