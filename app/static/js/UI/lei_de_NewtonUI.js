@@ -11,7 +11,7 @@ export class lei_de_NewtonUI {
     render(containerPrincipal) {
         console.log("Renderizando a tela de Dinâmica...");
         containerPrincipal.innerHTML = `
-            <h2>2° Lei de Newton</h2>
+            <h2>🧮 2° Lei de Newton</h2>
             <table class="table">
                 <tr style="width: 100%;">
                     <td class="table-label">MASSA:</td>
