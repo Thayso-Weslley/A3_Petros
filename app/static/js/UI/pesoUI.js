@@ -10,7 +10,7 @@ export class pesoUI {
     render(containerPrincipal) {
         console.log("Renderizando a tela de Força Peso...");
         containerPrincipal.innerHTML = `
-            <h2>Força Peso</h2>
+            <h2>🧮 Força Peso</h2>
             <table class="table">
                 <tr style="width: 100%;">
                     <td class="table-label">MASSA:</td>
