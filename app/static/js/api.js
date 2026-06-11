@@ -37,12 +37,52 @@ export const API = {
             });
             if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
             return await response.json();
+        },
+
+        async calcularPotencia(payload) {
+            const response = await fetch('/api/potencia/calcular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
+            return await response.json();
+        },
+
+        async calcularQuantidadeMovimento(payload) {
+            const response = await fetch('/api/quantidade_de_movimento/calcular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
+            return await response.json();
+        },
+
+        async calcularTrabalho(payload) {
+            const response = await fetch('/api/trabalho/calcular', { // Ajuste o endpoint conforme seu padrão no Flask
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
+            return await response.json();
         }
     },
 
     estatica: {
         async calcularMomento(payload) {
             const response = await fetch('/api/momento/calcular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
+            return await response.json();
+        },
+
+        async calcularAtrito(payload) {
+            const response = await fetch('/api/atrito/calcular', { // Ajuste se o seu endpoint do Flask mudar
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
