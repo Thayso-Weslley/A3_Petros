@@ -1,22 +1,22 @@
+// Importe o objeto API mapeando o caminho correto do seu diretório
+import { API } from '../api.js'; 
+
 export class MateriaisUI {
     constructor() {
         this.nomeMenu = "🌐 Lista On-line";
-        this.materiaisCache = []; // Guarda os materiais para não precisar refazer o fetch ao filtrar
+        this.materiaisCache = []; 
     }
 
-    // Método principal chamado pelo roteador/maestro
     async render(containerPrincipal) {
         this.container = containerPrincipal;
         
-        // 1. Renderiza a estrutura inicial (Barra de busca + Container da lista)
         this.container.innerHTML = `
             <div class="catalogo-header">
                 <h2>🌐 Catálogo de Materiais On-line</h2>
                 <p>Consulte propriedades de materiais e semicondutores para engenharia.</p>
-                
                 <div class="catalogo-search-box">
                     <span class="search-icon">🔎</span>
-                    <input type="text" id="input-busca-material" placeholder="Filtrar por nome, categoria ou tag (ex: potência)..." autocomplete="off">
+                    <input type="text" id="input-busca-material" placeholder="Filtrar por nome, categoria ou tag..." autocomplete="off">
                 </div>
             </div>
             <div id="catalogo-lista-container" class="catalogo-grid">
@@ -24,20 +24,16 @@ export class MateriaisUI {
             </div>
         `;
 
-        // 2. Vincula o evento de busca em tempo real
         const inputBusca = this.container.querySelector('#input-busca-material');
         inputBusca.addEventListener('input', (e) => this.filtrarLista(e.target.value));
 
-        // 3. Busca os dados no backend
         await this.carregarDados();
     }
 
     async carregarDados() {
         try {
-            // Simulando ou batendo na sua rota do Python que lê a pasta 'catalogo_json'
-            const response = await fetch('/api/materiais/catalogo');
-            this.materiaisCache = await response.json();
-            
+            // Chamada limpa utilizando o api.js
+            this.materiaisCache = await API.materiais.obterCatalogo();
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error("Erro ao carregar catálogo:", error);
@@ -53,13 +49,12 @@ export class MateriaisUI {
             return;
         }
 
-        listaContainer.innerHTML = ''; // Limpa o loading
+        listaContainer.innerHTML = ''; 
 
         lista.forEach(material => {
             const card = document.createElement('div');
             card.className = 'material-card';
             
-            // Cria os badges de tags
             const tagsBadges = material.metadados?.tags?.map(tag => `<span class="tag-badge">${tag}</span>`).join('') || '';
 
             card.innerHTML = `
@@ -71,9 +66,7 @@ export class MateriaisUI {
                 <button class="btn-ver-ficha">Visualizar Ficha Técnica →</button>
             `;
 
-            // Ao clicar em qualquer parte do card, carrega a Ficha Técnica completa
             card.addEventListener('click', () => this.renderFichaTecnica(material));
-
             listaContainer.appendChild(card);
         });
     }
@@ -95,11 +88,9 @@ export class MateriaisUI {
         this.exibirLista(filtrados);
     }
 
-    // Segunda Forma: Apresenta todos os dados estruturados do JSON escolhido
     renderFichaTecnica(material) {
-        // Altera o HTML do container principal para o modo "Ficha Técnica"
         this.container.innerHTML = `
-            <div class="ficha-wrapper">
+            <div class="ficha-wrapper" style="position: relative;">
                 <button id="btn-voltar-catalogo" class="btn-voltar">← Voltar ao Catálogo</button>
                 
                 <div class="ficha-header">
@@ -108,34 +99,30 @@ export class MateriaisUI {
                         <span class="material-categoria grande">${material.categoria}</span>
                     </div>
                     <div class="ficha-meta">
-                        <small><strong>Fonte:</strong> ${material.metadados.fonte_referencia}</small><br>
-                        <small><strong>Adicionado em:</strong> ${material.metadados.data_adicao}</small>
+                        <small><strong>Fonte:</strong> ${material.metadados?.fonte_referencia || 'N/A'}</small><br>
+                        <small><strong>Adicionado em:</strong> ${material.metadados?.data_adicao || 'N/A'}</small>
                     </div>
                 </div>
 
                 <div class="ficha-propriedades-grid">
-                    
                     <div class="propriedade-secao">
                         <h3>🔩 Propriedades Mecânicas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material.propriedades_mecanicas)}
                         </table>
                     </div>
-
                     <div class="propriedade-secao">
                         <h3>🔥 Propriedades Térmicas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material.propriedades_termicas)}
                         </table>
                     </div>
-
                     <div class="propriedade-secao">
                         <h3>⚡ Propriedades Elétricas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material.propriedades_eletricas)}
                         </table>
                     </div>
-
                 </div>
 
                 <div class="ficha-acoes">
@@ -143,35 +130,118 @@ export class MateriaisUI {
                         📥 Clonar para o Meu Inventário Personalizado
                     </button>
                 </div>
+
+                <div id="modal-selecionar-lista" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; justify-content: center; align-items: center;">
+                    <div style="background: #1a2436; padding: 24px; border-radius: 8px; width: 90%; max-width: 450px; border: 1px solid #0275d8; color: #fff;">
+                        <h3 style="margin-top: 0; color: #fff; border-bottom: 1px solid #333; padding-bottom: 8px;">Salvar no Inventário</h3>
+                        
+                        <div style="margin: 16px 0;">
+                            <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Escolha uma lista existente:</label>
+                            <select id="select-listas-existentes" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
+                                <option value="">-- Selecionar lista existente --</option>
+                            </select>
+                        </div>
+
+                        <div style="margin: 16px 0;">
+                            <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Ou crie uma nova lista (Nome da subpasta):</label>
+                            <input type="text" id="input-nova-lista" placeholder="Ex: Projeto TCC Semicondutores" style="width: 95%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+                            <button id="btn-cancelar-modal" style="background: #444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                            <button id="btn-confirmar-modal" style="background: #2baf4a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Confirmar Salvação</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
 
-        // Ativa o botão de voltar à listagem mantendo o cache local intacto
         this.container.querySelector('#btn-voltar-catalogo').addEventListener('click', () => {
             this.render(this.container);
-            this.exibirLista(this.materiaisCache); // Restaura o estado da lista imediatamente
+            this.exibirLista(this.materiaisCache);
         });
 
-        // Gancho opcional para a sua lógica de inventário do usuário futuramente
         const btnSalvar = this.container.querySelector('#btn-salvar-inventario');
-        btnSalvar.addEventListener('click', () => {
-            alert(`Cópia do arquivo enviado para a pasta 'inventário_usuário' com sucesso! (ID: ${material.id})`);
+        const modal = this.container.querySelector('#modal-selecionar-lista');
+        const selectListas = this.container.querySelector('#select-listas-existentes');
+        const inputNovaLista = this.container.querySelector('#input-nova-lista');
+        
+        btnSalvar.addEventListener('click', async () => {
+            modal.style.display = 'flex';
+            
+            try {
+                // Nova chamada limpa via api.js
+                const listas = await API.materiais.usuario.obterListas();
+                
+                selectListas.innerHTML = '<option value="">-- Selecionar lista existente --</option>';
+                listas.forEach(nomePasta => {
+                    const opt = document.createElement('option');
+                    opt.value = nomePasta;
+                    opt.textContent = nomePasta;
+                    selectListas.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Erro ao ler pastas do inventário:", err);
+            }
+        });
+
+        this.container.querySelector('#btn-cancelar-modal').addEventListener('click', () => {
+            modal.style.display = 'none';
+            inputNovaLista.value = '';
+        });
+
+        this.container.querySelector('#btn-confirmar-modal').addEventListener('click', async () => {
+            let listaDestino = selectListas.value;
+            const novaLista = inputNovaLista.value.trim();
+
+            if (novaLista) {
+                listaDestino = novaLista;
+            }
+
+            if (!listaDestino) {
+                alert("Por favor, selecione uma lista existente ou digite o nome de uma nova lista.");
+                return;
+            }
+
+            const payload = {
+                nome_lista: listaDestino,
+                material: material
+            };
+
+            try {
+                // Despacho do POST encapsulado no api.js
+                const resultado = await API.materiais.usuario.adicionar(payload);
+
+                if (resultado.sucesso) {
+                    alert(resultado.mensagem);
+                    modal.style.display = 'none';
+                    inputNovaLista.value = '';
+                } else {
+                    alert(`Erro do sistema: ${resultado.erro}`);
+                }
+            } catch (error) {
+                alert("Falha de rede ao tentar salvar o material no repositório local.");
+                console.error(error);
+            }
         });
     }
 
-    // Helper dinâmico para varrer os objetos do JSON e criar as tr/td automaticamente
     gerarLinhasTabela(subObjeto) {
-        if (!subObjeto) return '<tr><td colspan="2">Nenhum dado disponível.</td></tr>';
+        if (!subObjeto || Object.keys(subObjeto).length === 0) {
+            return '<tr><td colspan="2" style="color: #666; font-style: italic; padding: 8px;">Nenhum dado disponível.</td></tr>';
+        }
         
         return Object.entries(subObjeto).map(([chave, dados]) => {
-            // Formata o nome da chave substituindo underlines por espaços e capitalizando
+            if (!dados || dados.valor === undefined) return '';
             const nomeFormatado = chave.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             const exibeUnidade = dados.unidade !== "adimensional" ? dados.unidade : "";
             
             return `
                 <tr>
-                    <td class="prop-nome">${nomeFormatado}</td>
-                    <td class="prop-valor">${dados.valor} <span class="prop-unidade">${exibeUnidade}</span></td>
+                    <td class="prop-nome" style="padding: 8px; color: #aaa;">${nomeFormatado}</td>
+                    <td class="prop-valor" style="padding: 8px; color: #fff; font-weight: bold; text-align: right;">
+                        ${dados.valor} <span class="prop-unidade" style="color: #0275d8; font-size: 0.85rem; margin-left: 4px;">${exibeUnidade}</span>
+                    </td>
                 </tr>
             `;
         }).join('');
