@@ -14,7 +14,12 @@ def create_app():
     from app.api.dinamica.potencia_routes import potencia_bp
     from app.api.dinamica.quantidade_de_movimento_routes import quantidade_de_movimento_bp
     from app.api.repositorio_base_routes import repositorio_base_bp
+    from app.api.repositorio_usuario_routes import usuario_materiais_bp
     from app.api.dinamica.trabalho_routes import trabalho_bp
+    from app.api.engenharia.formula_de_Navier_routes import navier_bp
+    from app.api.engenharia.equacao_de_Euler_routes import euler_bp
+
+    # Registro dos Blueprints
     app.register_blueprint(lei_de_Newton_bp)
     app.register_blueprint(atrito_bp)
     app.register_blueprint(energia_cinetica_bp)
@@ -23,6 +28,9 @@ def create_app():
     app.register_blueprint(potencia_bp)
     app.register_blueprint(quantidade_de_movimento_bp)
     app.register_blueprint(repositorio_base_bp)
+    app.register_blueprint(usuario_materiais_bp)
     app.register_blueprint(trabalho_bp)
+    app.register_blueprint(navier_bp)
+    app.register_blueprint(euler_bp)
 
     return app
