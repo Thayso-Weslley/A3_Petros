@@ -92,11 +92,57 @@ export const API = {
         }
     },
 
+    engenharia: {
+        async calcularNavier(payload) {
+            const response = await fetch('/api/engenharia/navier/calcular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
+            return await response.json();
+        },
+
+        async calcularEuler(payload) {
+            const response = await fetch('/api/engenharia/equacao_de_Euler/calcular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(`Erro no servidor: ${response.status}`);
+            return await response.json();
+        }
+    },
+
     materiais: {
         async obterCatalogo() {
             const response = await fetch('/api/materiais/catalogo');
             if (!response.ok) throw new Error("Erro ao buscar catálogo");
             return await response.json();
+        },
+
+        // Sub-objeto para organizar as requisições específicas do inventário do usuário
+        usuario: {
+            async obterListas() {
+                const res = await fetch('/api/materiais/usuario/listas');
+                if (!res.ok) throw new Error("Erro na rede ao buscar pastas do usuário.");
+                return await res.json();
+            },
+
+            async adicionar(payload) {
+                const res = await fetch('/api/materiais/usuario/adicionar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return await res.json(); // Retorna o dicionário { sucesso: true/false, mensagem/erro }
+            },
+
+            async obterTodos() {
+                const res = await fetch('/api/materiais/usuario/listar-todos');
+                if (!res.ok) throw new Error("Erro ao buscar inventário completo.");
+                return await res.json();
+            }   
         }
     }
 };
