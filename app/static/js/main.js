@@ -2,6 +2,7 @@
 import { menuUI } from './UI/menuUI.js';
 import { CoreUI } from './UI.js';
 import { MateriaisUI } from './UI/materiaisUI.js';
+import { ListasUsuarioUI } from './UI/listasUsuarioUI.js';
 import { lei_de_NewtonUI } from './UI/lei_de_NewtonUI.js';
 import { energia_cineticaUI } from './UI/energia_cineticaUI.js';
 import { pesoUI } from './UI/pesoUI.js';
@@ -10,6 +11,8 @@ import { potenciaUI } from './UI/potenciaUI.js';
 import { quantidade_de_movimentoUI } from './UI/quantidade_de_movimentoUI.js';
 import { trabalhoUI } from './UI/trabalhoUI.js';
 import { atritoUI } from './UI/atritoUI.js';
+import { formula_de_NavierUI } from './UI/formula_de_NavierUI.js';
+import { equacao_de_EulerUI } from './UI/equacao_de_EulerUI.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. MAPEAMENTO DE DOM
@@ -19,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar: document.getElementById('sidebar'),
         toggleBtn: document.getElementById('toggleBtn'),
         btnBuscarFormula: document.getElementById('btn-buscar-formula'),
-        btnListaOnline: document.getElementById('btn-lista-online')
+        btnListaOnline: document.getElementById('btn-lista-online'),
+        btnMinhasListas: document.getElementById('btn-minhas-listas')
     };
 
     // 2. INJEÇÃO DE DEPENDÊNCIAS
@@ -31,17 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
         'Potência': new potenciaUI(),
         'Quantidade de Movimento': new quantidade_de_movimentoUI(),
         'Trabalho Mecânico': new trabalhoUI(),
-        'Força de Atrito': new atritoUI()
+        'Força de Atrito': new atritoUI(),
+        'Fórmula de Navier (Vigas)': new formula_de_NavierUI(),
+        'Equação de Euler (Flambagem)': new equacao_de_EulerUI()
     };
 
     // 3. COMPONENTES FIXOS (Instanciado aqui apenas para gerenciar as telas fixas)
     const telaListaOnline = new MateriaisUI();
+    const telaMinhasListas = new ListasUsuarioUI();
     
     // 4. ESTADO GLOBAL
     let calculadorasAtivas = [''];
 
     // BARRAMENTO GLOBAL (API DO SISTEMA)
     window.EngenhApp = {
+        // Expondo as referências para os módulos dinâmicos poderem se injetar
+        _componentes: componentes, 
+        _screen: DOM.screen,
+
         adicionarModulo: (chave) => {
             if (componentes[chave] && !calculadorasAtivas.includes(chave)) {
                 calculadorasAtivas.push(chave);
@@ -50,6 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         removerModulo: (chave) => {
             calculadorasAtivas = calculadorasAtivas.filter(item => item !== chave);
+
+            // Se for uma lista customizada, removemos o registro do dicionário para liberar memória
+            if (chave.startsWith('lista-user-') && componentes[chave]) {
+                delete componentes[chave];
+            }
+
             atualizarInterface();
         },
         obterModulosAtivos: () => calculadorasAtivas
@@ -77,12 +94,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (DOM.btnMinhasListas) {
+        DOM.btnMinhasListas.addEventListener('click', () => {
+            telaMinhasListas.render(DOM.screen);
+        });
+    }
+
     // Evento dos botões fixos da sidebar
     document.querySelectorAll('#itens-fixos .screen-link').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget.dataset.screen;
             // Ignora o 'lista-online' aqui, pois ele já tem o listener dedicado acima
-            if (target !== 'lista-online') {
+            if (target !== 'lista-online' && target !== 'minhas-listas') {
                 CoreUI.renderScreenFixo(DOM.screen, target);
             }
         });
