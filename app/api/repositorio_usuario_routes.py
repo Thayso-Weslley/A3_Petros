@@ -2,11 +2,14 @@
 
 from flask import Blueprint, request, jsonify
 from Lista_Materiais.repositorio_usuario import RepositorioUsuario
+# IMPORTANTE: Importa o decorator de proteção que criamos no módulo de autenticação
+from app.api.auth_routes import login_required
 
 usuario_materiais_bp = Blueprint('usuario_materiais_api', __name__, url_prefix='/api/materiais/usuario')
 repo_usuario = RepositorioUsuario()
 
 @usuario_materiais_bp.route('/listas', methods=['GET'])
+@login_required # <-- Garante que robôs ou usuários deslogados não listem as pastas
 def obter_pastas_listas():
     """Retorna os nomes de todas as pastas existentes dentro de 'inventario_usuario'."""
     listas = repo_usuario.listar_listas_criadas()
@@ -14,6 +17,7 @@ def obter_pastas_listas():
 
 
 @usuario_materiais_bp.route('/adicionar', methods=['POST'])
+@login_required # <-- Protege o endpoint de escrita de dados
 def adicionar_material_na_pasta():
     """
     Recebe o payload contendo o nome da lista (pasta) e o objeto do material.
@@ -35,6 +39,7 @@ def adicionar_material_na_pasta():
 
 
 @usuario_materiais_bp.route('/listar-todos', methods=['GET'])
+@login_required # <-- Bloqueia o acesso direto à leitura geral dos materiais
 def obter_todos_materiais_pessoais():
     """Retorna todos os arquivos JSON mapeados em todas as subpastas unificados."""
     materiais = repo_usuario.listar_todos_materiais_usuario()
