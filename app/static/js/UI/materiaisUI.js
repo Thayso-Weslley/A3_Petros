@@ -5,6 +5,9 @@ export class MateriaisUI {
     constructor() {
         this.nomeMenu = "🌐 Lista On-line";
         this.materiaisCache = []; 
+        // Armarzenamento de estado para controle futuro do scroll infinito
+        this.paginaAtual = 1;
+        this.temMaisItens = false;
     }
 
     async render(containerPrincipal) {
@@ -32,8 +35,12 @@ export class MateriaisUI {
 
     async carregarDados() {
         try {
-            // Chamada limpa utilizando o api.js
-            this.materiaisCache = await API.materiais.obterCatalogo();
+            // A rota agora retorna um objeto: { itens: [...], tem_mais: bool }
+            const resultado = await API.materiais.obterCatalogo();
+            
+            this.materiaisCache = resultado.itens || [];
+            this.temMaisItens = resultado.tem_mais || false;
+            
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error("Erro ao carregar catálogo:", error);
@@ -55,7 +62,8 @@ export class MateriaisUI {
             const card = document.createElement('div');
             card.className = 'material-card';
             
-            const tagsBadges = material.metadados?.tags?.map(tag => `<span class="tag-badge">${tag}</span>`).join('') || '';
+            // As tags agora estão direto na raiz do objeto material
+            const tagsBadges = material.tags?.map(tag => `<span class="tag-badge">${tag}</span>`).join('') || '';
 
             card.innerHTML = `
                 <div class="material-card-info">
@@ -79,9 +87,10 @@ export class MateriaisUI {
         }
 
         const filtrados = this.materiaisCache.filter(mat => {
-            const nomeMatch = mat.nome.toLowerCase().includes(query);
-            const catMatch = mat.categoria.toLowerCase().includes(query);
-            const tagMatch = mat.metadados?.tags?.some(tag => tag.toLowerCase().includes(query));
+            const nomeMatch = mat.nome?.toLowerCase().includes(query);
+            const catMatch = mat.categoria?.toLowerCase().includes(query);
+            // Tags mapeadas direto da raiz do objeto
+            const tagMatch = mat.tags?.some(tag => tag.toLowerCase().includes(query));
             return nomeMatch || catMatch || tagMatch;
         });
 
@@ -99,8 +108,8 @@ export class MateriaisUI {
                         <span class="material-categoria grande">${material.categoria}</span>
                     </div>
                     <div class="ficha-meta">
-                        <small><strong>Fonte:</strong> ${material.metadados?.fonte_referencia || 'N/A'}</small><br>
-                        <small><strong>Adicionado em:</strong> ${material.metadados?.data_adicao || 'N/A'}</small>
+                        <small><strong>Fonte:</strong> ${material.fonte_referencia || 'N/A'}</small><br>
+                        <small><strong>Adicionado em:</strong> ${material.data_adicao || 'N/A'}</small>
                     </div>
                 </div>
 
@@ -108,19 +117,34 @@ export class MateriaisUI {
                     <div class="propriedade-secao">
                         <h3>🔩 Propriedades Mecânicas</h3>
                         <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material.propriedades_mecanicas)}
+                            ${this.gerarLinhasTabela(material, {
+                                densidade: "g/cm³",
+                                modulo_elasticidade: "GPa",
+                                coeficiente_poisson: "adimensional",
+                                limite_compressao: "MPa",
+                                limite_tracao: "MPa",
+                                limite_cisalhamento: "MPa"
+                            })}
                         </table>
                     </div>
                     <div class="propriedade-secao">
                         <h3>🔥 Propriedades Térmicas</h3>
                         <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material.propriedades_termicas)}
+                            ${this.gerarLinhasTabela(material, {
+                                condutividade_termica: "W/(m·K)",
+                                calor_especifico: "J/(kg·K)",
+                                expansao_termica: "µm/(m·K)",
+                                ponto_fusao: "°C"
+                            })}
                         </table>
                     </div>
                     <div class="propriedade-secao">
                         <h3>⚡ Propriedades Elétricas</h3>
                         <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material.propriedades_eletricas)}
+                            ${this.gerarLinhasTabela(material, {
+                                condutividade_eletrica: "S/m",
+                                resistividade: "Ω·cm"
+                            })}
                         </table>
                     </div>
                 </div>
@@ -170,7 +194,6 @@ export class MateriaisUI {
             modal.style.display = 'flex';
             
             try {
-                // Nova chamada limpa via api.js
                 const listas = await API.materiais.usuario.obterListas();
                 
                 selectListas.innerHTML = '<option value="">-- Selecionar lista existente --</option>';
@@ -209,7 +232,6 @@ export class MateriaisUI {
             };
 
             try {
-                // Despacho do POST encapsulado no api.js
                 const resultado = await API.materiais.usuario.adicionar(payload);
 
                 if (resultado.sucesso) {
@@ -226,24 +248,32 @@ export class MateriaisUI {
         });
     }
 
-    gerarLinhasTabela(subObjeto) {
-        if (!subObjeto || Object.keys(subObjeto).length === 0) {
-            return '<tr><td colspan="2" style="color: #666; font-style: italic; padding: 8px;">Nenhum dado disponível.</td></tr>';
-        }
-        
-        return Object.entries(subObjeto).map(([chave, dados]) => {
-            if (!dados || dados.valor === undefined) return '';
-            const nomeFormatado = chave.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
-            const exibeUnidade = dados.unidade !== "adimensional" ? dados.unidade : "";
+    // Método reformulado para realizar o agrupamento e mapeamento cosmético no Client-side
+    gerarLinhasTabela(material, mapaPropriedades) {
+        const linhasHTML = Object.entries(mapaPropriedades).map(([coluna, unidade]) => {
+            const valor = material[coluna];
+            
+            // Ignora a linha se a propriedade não existir ou for nula para aquele material
+            if (valor === undefined || valor === null) return '';
+            
+            const nomeFormatado = coluna.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            const exibeUnidade = unidade !== "adimensional" ? unidade : "";
             
             return `
                 <tr>
                     <td class="prop-nome" style="padding: 8px; color: #aaa;">${nomeFormatado}</td>
                     <td class="prop-valor" style="padding: 8px; color: #fff; font-weight: bold; text-align: right;">
-                        ${dados.valor} <span class="prop-unidade" style="color: #0275d8; font-size: 0.85rem; margin-left: 4px;">${exibeUnidade}</span>
+                        ${valor} <span class="prop-unidade" style="color: #0275d8; font-size: 0.85rem; margin-left: 4px;">${exibeUnidade}</span>
                     </td>
                 </tr>
             `;
         }).join('');
+
+        // Fallback de segurança caso a secessão inteira esteja vazia
+        if (!linhasHTML) {
+            return '<tr><td colspan="2" style="color: #666; font-style: italic; padding: 8px;">Nenhum dado disponível.</td></tr>';
+        }
+        
+        return linhasHTML;
     }
 }
