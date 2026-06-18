@@ -1,30 +1,68 @@
 import os
-import json
+import sqlite3
 
 class RepositorioBase:
     def __init__(self):
-        # __file__ é "EngenhApp/Lista_Materiais/repositorio_base.py"
-        # os.path.dirname(__file__) é "EngenhApp/Lista_Materiais"
         self.pasta_lista_materiais = os.path.dirname(os.path.abspath(__file__))
-        
-        # Aponta direto para a subpasta catalogo_json sem sair e voltar
-        self.pasta_catalogo = os.path.join(self.pasta_lista_materiais, 'catalogo_json')
+        self.caminho_db = os.path.join(self.pasta_lista_materiais, 'DB_catalogo', 'engenhapp.db')
 
-    def obter_todos_materiais(self):
-        """Varre a pasta catalogo_json e retorna uma lista com o conteúdo de todos os JSONs"""
+    def obter_todos_materiais(self, pagina=1, por_pagina=200, ordenar_por="nome", direcao="ASC"):
+        """Acessa o banco engenhapp.db aplicando ordenação e paginação nativa"""
         lista_materiais = []
 
-        if not os.path.exists(self.pasta_catalogo):
+        if not os.path.exists(self.caminho_db):
             return lista_materiais
 
-        for nome_arquivo in os.listdir(self.pasta_catalogo):
-            if nome_arquivo.endswith('.json'):
-                caminho_completo = os.path.join(self.pasta_catalogo, nome_arquivo)
-                try:
-                    with open(caminho_completo, 'r', encoding='utf-8') as arquivo:
-                        dados_material = json.load(arquivo)
-                        lista_materiais.append(dados_material)
-                except Exception as e:
-                    print(f"Erro ao ler o arquivo {nome_arquivo}: {e}")
+        try:
+            conexao = sqlite3.connect(self.caminho_db)
+            conexao.row_factory = sqlite3.Row
+            cursor = conexao.cursor()
+
+            # Calcula quantos itens pular com base na página atual
+            offset = (pagina - 1) * por_pagina
+
+            # Lista de colunas permitidas para evitar SQL Injection na ordenação
+            colunas_validas = [
+                "id", "nome", "categoria", "preco", "densidade", 
+                "modulo_elasticidade", "coeficiente_poisson", "limite_compressao", 
+                "limite_tracao", "limite_cisalhamento", "condutividade_termica", 
+                "calor_especifico", "expansao_termica", "ponto_fusao", 
+                "condutividade_eletrica", "resistividade"
+            ]
+            
+            # Sanitização estrita do campo de ordenação
+            if ordenar_por not in colunas_validas:
+                ordenar_por = "nome"
+            
+            direcao = "DESC" if direcao.upper() == "DESC" else "ASC"
+
+            # Query otimizada com LIMIT e OFFSET (Paginação nativa do SQLite)
+            query = f"""
+                SELECT * FROM materiais 
+                ORDER BY {ordenar_por} {direcao} 
+                LIMIT ? OFFSET ?
+            """
+
+            cursor.execute(query, (por_pagina, offset))
+            linhas = cursor.fetchall()
+
+            for linha in linhas:
+                dados_material = dict(linha)
+                if dados_material.get('tags'):
+                    dados_material['tags'] = [tag.strip() for tag in dados_material['tags'].split(',')]
+                else:
+                    dados_material['tags'] = []
                     
-        return lista_materiais
+                lista_materiais.append(dados_material)
+
+            # Query secundária rápida para saber se ainda existem mais itens no banco além deste lote
+            cursor.execute("SELECT COUNT(id) FROM materiais")
+            total_itens = cursor.fetchone()[0]
+            tem_mais = (offset + len(lista_materiais)) < total_itens
+
+            conexao.close()
+            return {"itens": lista_materiais, "tem_mais": tem_mais}
+            
+        except Exception as e:
+            print(f"Erro crítico no repositório: {e}")
+            return {"itens": [], "tem_mais": False}
