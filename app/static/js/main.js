@@ -1,8 +1,8 @@
 // Importando seus blocos/componentes autônomos da pasta UI
-import { menuUI } from './UI/menuUI.js';
+import { menuUI } from './UI/itensFixos/menuUI.js';
 import { CoreUI } from './UI.js';
-import { MateriaisUI } from './UI/materiaisUI.js';
-import { ListasUsuarioUI } from './UI/listasUsuarioUI.js';
+import { MateriaisUI } from './UI/itensFixos/materiaisUI.js';
+import { ListasUsuarioUI } from './UI/itensFixos/listasUsuarioUI.js';
 import { lei_de_NewtonUI } from './UI/lei_de_NewtonUI.js';
 import { energia_cineticaUI } from './UI/energia_cineticaUI.js';
 import { pesoUI } from './UI/pesoUI.js';
