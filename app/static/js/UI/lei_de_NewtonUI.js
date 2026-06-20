@@ -1,4 +1,4 @@
-import { BaseCalculoUI } from './baseCalculoUI.js';
+import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
 import { API } from '../api.js';
 
 export class lei_de_NewtonUI extends BaseCalculoUI {
