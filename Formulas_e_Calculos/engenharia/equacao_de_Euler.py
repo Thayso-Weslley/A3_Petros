@@ -57,6 +57,7 @@ class equacao_de_Euler:
                 "carga_admissivel_segura": round(carga_admissivel, 2),
                 "status": status,
                 "aprovado": aprovado,
+                "fator_k_utilizado": k,  # 🔥 Corrigido: Injetado para o Frontend ler
                 "nota_tecnica": f"Esta coluna suporta uma carga útil máxima de {round(carga_admissivel, 2)} N. O momento de inércia MÍNIMO exigido é {round(i_min, 8)} m⁴. O comprimento MÁXIMO seguro para esta seção é de {round(l_max, 2)} m."
             }
 
@@ -76,6 +77,7 @@ class equacao_de_Euler:
                 return {
                     "carga_atuante": round(carga_adm_max, 2),
                     "status": "DIMENSIONADO COM SUCESSO",
+                    "fator_k_utilizado": k,  # 🔥 Corrigido
                     "nota_tecnica": f"Considerando o fator K={k} e FS={coeficiente_seguranca}, a carga atuante máxima sobre a coluna deve ser de {round(carga_adm_max, 2)} N."
                 }
 
@@ -88,6 +90,7 @@ class equacao_de_Euler:
                 return {
                     "momento_inercia": round(i_min, 8),
                     "status": "DIMENSIONADO COM SUCESSO",
+                    "fator_k_utilizado": k,  # 🔥 Corrigido
                     "nota_tecnica": f"Para evitar o colapso por flambagem, a seção transversal do pilar deve possuir um Momento de Inércia (I) de no MÍNIMO {round(i_min, 8)} m⁴."
                 }
 
@@ -100,6 +103,7 @@ class equacao_de_Euler:
                 return {
                     "comprimento": round(l_max, 2),
                     "status": "DIMENSIONADO COM SUCESSO",
+                    "fator_k_utilizado": k,  # 🔥 Corrigido
                     "nota_tecnica": f"Para a carga de projeto informada, a coluna pode ter um comprimento de no MÁXIMO {round(l_max, 2)} metros sem flambar."
                 }
 
@@ -112,6 +116,7 @@ class equacao_de_Euler:
                 return {
                     "modulo_elasticidade": round(e_min, 2),
                     "status": "DIMENSIONADO COM SUCESSO",
+                    "fator_k_utilizado": k,  # 🔥 Corrigido
                     "nota_tecnica": f"O material escolhido para esta coluna deve apresentar um Módulo de Elasticidade (E) de no MÍNIMO {round(e_min, 2)} Pa."
                 }
 
