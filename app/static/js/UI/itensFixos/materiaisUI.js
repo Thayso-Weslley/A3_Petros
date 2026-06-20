@@ -1,11 +1,10 @@
-// Importe o objeto API mapeando o caminho correto do seu diretório
-import { API } from '../api.js'; 
+// app/static/js/UI/itensFixos/materiaisUI.js
+import { API } from '../../api.js'; 
 
 export class MateriaisUI {
     constructor() {
         this.nomeMenu = "🌐 Lista On-line";
         this.materiaisCache = []; 
-        // Armarzenamento de estado para controle futuro do scroll infinito
         this.paginaAtual = 1;
         this.temMaisItens = false;
     }
@@ -27,31 +26,30 @@ export class MateriaisUI {
             </div>
         `;
 
-        const inputBusca = this.container.querySelector('#input-busca-material');
-        inputBusca.addEventListener('input', (e) => this.filtrarLista(e.target.value));
+        this.container.querySelector('#input-busca-material')
+            .addEventListener('input', (e) => this.filtrarLista(e.target.value));
 
         await this.carregarDados();
     }
 
     async carregarDados() {
+        const listaContainer = this.container.querySelector('#catalogo-lista-container');
         try {
-            // A rota agora retorna um objeto: { itens: [...], tem_mais: bool }
             const resultado = await API.materiais.obterCatalogo();
-            
             this.materiaisCache = resultado.itens || [];
             this.temMaisItens = resultado.tem_mais || false;
             
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error("Erro ao carregar catálogo:", error);
-            const listaContainer = this.container.querySelector('#catalogo-lista-container');
             listaContainer.innerHTML = `<p style="color: #ff4d4d;">Não foi possível carregar o catálogo de materiais.</p>`;
         }
     }
 
     exibirLista(lista) {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
-        if (lista.length === 0) {
+        
+        if (!lista.length) {
             listaContainer.innerHTML = `<p class="loading-text">Nenhum material encontrado com esses critérios.</p>`;
             return;
         }
@@ -62,7 +60,6 @@ export class MateriaisUI {
             const card = document.createElement('div');
             card.className = 'material-card';
             
-            // As tags agora estão direto na raiz do objeto material
             const tagsBadges = material.tags?.map(tag => `<span class="tag-badge">${tag}</span>`).join('') || '';
 
             card.innerHTML = `
@@ -81,17 +78,12 @@ export class MateriaisUI {
 
     filtrarLista(termo) {
         const query = termo.toLowerCase().trim();
-        if (!query) {
-            this.exibirLista(this.materiaisCache);
-            return;
-        }
+        if (!query) return this.exibirLista(this.materiaisCache);
 
         const filtrados = this.materiaisCache.filter(mat => {
-            const nomeMatch = mat.nome?.toLowerCase().includes(query);
-            const catMatch = mat.categoria?.toLowerCase().includes(query);
-            // Tags mapeadas direto da raiz do objeto
-            const tagMatch = mat.tags?.some(tag => tag.toLowerCase().includes(query));
-            return nomeMatch || catMatch || tagMatch;
+            return mat.nome?.toLowerCase().includes(query) ||
+                   mat.categoria?.toLowerCase().includes(query) ||
+                   mat.tags?.some(tag => tag.toLowerCase().includes(query));
         });
 
         this.exibirLista(filtrados);
@@ -118,12 +110,8 @@ export class MateriaisUI {
                         <h3>🔩 Propriedades Mecânicas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material, {
-                                densidade: "g/cm³",
-                                modulo_elasticidade: "GPa",
-                                coeficiente_poisson: "adimensional",
-                                limite_compressao: "MPa",
-                                limite_tracao: "MPa",
-                                limite_cisalhamento: "MPa"
+                                densidade: "g/cm³", modulo_elasticidade: "GPa", coeficiente_poisson: "adimensional",
+                                limite_compressao: "MPa", limite_tracao: "MPa", limite_cisalhamento: "MPa"
                             })}
                         </table>
                     </div>
@@ -131,10 +119,8 @@ export class MateriaisUI {
                         <h3>🔥 Propriedades Térmicas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material, {
-                                condutividade_termica: "W/(m·K)",
-                                calor_especifico: "J/(kg·K)",
-                                expansao_termica: "µm/(m·K)",
-                                ponto_fusao: "°C"
+                                condutividade_termica: "W/(m·K)", calor_especifico: "J/(kg·K)",
+                                expansao_termica: "µm/(m·K)", ponto_fusao: "°C"
                             })}
                         </table>
                     </div>
@@ -142,8 +128,7 @@ export class MateriaisUI {
                         <h3>⚡ Propriedades Elétricas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material, {
-                                condutividade_eletrica: "S/m",
-                                resistividade: "Ω·cm"
+                                condutividade_eletrica: "S/m", resistividade: "Ω·cm"
                             })}
                         </table>
                     </div>
@@ -157,20 +142,17 @@ export class MateriaisUI {
 
                 <div id="modal-selecionar-lista" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; justify-content: center; align-items: center;">
                     <div style="background: #1a2436; padding: 24px; border-radius: 8px; width: 90%; max-width: 450px; border: 1px solid #0275d8; color: #fff;">
-                        <h3 style="margin-top: 0; color: #fff; border-bottom: 1px solid #333; padding-bottom: 8px;">Salvar no Inventário</h3>
-                        
+                        <h3 style="margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 8px;">Salvar no Inventário</h3>
                         <div style="margin: 16px 0;">
                             <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Escolha uma lista existente:</label>
                             <select id="select-listas-existentes" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
                                 <option value="">-- Selecionar lista existente --</option>
                             </select>
                         </div>
-
                         <div style="margin: 16px 0;">
-                            <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Ou crie uma nova lista (Nome da subpasta):</label>
+                            <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Ou crie uma nova lista:</label>
                             <input type="text" id="input-nova-lista" placeholder="Ex: Projeto TCC Semicondutores" style="width: 95%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
                         </div>
-
                         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
                             <button id="btn-cancelar-modal" style="background: #444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Cancelar</button>
                             <button id="btn-confirmar-modal" style="background: #2baf4a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Confirmar Salvação</button>
@@ -180,31 +162,28 @@ export class MateriaisUI {
             </div>
         `;
 
+        this.configurarEventosFichaTecnica(material);
+    }
+
+    configurarEventosFichaTecnica(material) {
         this.container.querySelector('#btn-voltar-catalogo').addEventListener('click', () => {
             this.render(this.container);
-            this.exibirLista(this.materiaisCache);
         });
 
-        const btnSalvar = this.container.querySelector('#btn-salvar-inventario');
         const modal = this.container.querySelector('#modal-selecionar-lista');
         const selectListas = this.container.querySelector('#select-listas-existentes');
         const inputNovaLista = this.container.querySelector('#input-nova-lista');
-        
-        btnSalvar.addEventListener('click', async () => {
+
+        this.container.querySelector('#btn-salvar-inventario').addEventListener('click', async () => {
             modal.style.display = 'flex';
-            
             try {
                 const listas = await API.materiais.usuario.obterListas();
-                
                 selectListas.innerHTML = '<option value="">-- Selecionar lista existente --</option>';
                 listas.forEach(nomePasta => {
-                    const opt = document.createElement('option');
-                    opt.value = nomePasta;
-                    opt.textContent = nomePasta;
-                    selectListas.appendChild(opt);
+                    selectListas.appendChild(new Option(nomePasta, nomePasta));
                 });
             } catch (err) {
-                console.error("Erro ao ler pastas do inventário:", err);
+                console.error("Erro ao ler pastas:", err);
             }
         });
 
@@ -214,47 +193,33 @@ export class MateriaisUI {
         });
 
         this.container.querySelector('#btn-confirmar-modal').addEventListener('click', async () => {
-            let listaDestino = selectListas.value;
-            const novaLista = inputNovaLista.value.trim();
-
-            if (novaLista) {
-                listaDestino = novaLista;
-            }
+            const listaDestino = inputNovaLista.value.trim() || selectListas.value;
 
             if (!listaDestino) {
-                alert("Por favor, selecione uma lista existente ou digite o nome de uma nova lista.");
+                alert("Por favor, selecione ou digite o nome de uma lista.");
                 return;
             }
 
-            const payload = {
-                nome_lista: listaDestino,
-                material: material
-            };
-
             try {
-                const resultado = await API.materiais.usuario.adicionar(payload);
-
+                const resultado = await API.materiais.usuario.adicionar({ nome_lista: listaDestino, material });
                 if (resultado.sucesso) {
                     alert(resultado.mensagem);
                     modal.style.display = 'none';
                     inputNovaLista.value = '';
                 } else {
-                    alert(`Erro do sistema: ${resultado.erro}`);
+                    alert(`Erro: ${resultado.erro}`);
                 }
             } catch (error) {
-                alert("Falha de rede ao tentar salvar o material no repositório local.");
+                alert("Falha de rede ao tentar salvar o material.");
                 console.error(error);
             }
         });
     }
 
-    // Método reformulado para realizar o agrupamento e mapeamento cosmético no Client-side
     gerarLinhasTabela(material, mapaPropriedades) {
         const linhasHTML = Object.entries(mapaPropriedades).map(([coluna, unidade]) => {
             const valor = material[coluna];
-            
-            // Ignora a linha se a propriedade não existir ou for nula para aquele material
-            if (valor === undefined || valor === null) return '';
+            if (valor == null) return ''; // Filtra null ou undefined
             
             const nomeFormatado = coluna.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             const exibeUnidade = unidade !== "adimensional" ? unidade : "";
@@ -269,11 +234,6 @@ export class MateriaisUI {
             `;
         }).join('');
 
-        // Fallback de segurança caso a secessão inteira esteja vazia
-        if (!linhasHTML) {
-            return '<tr><td colspan="2" style="color: #666; font-style: italic; padding: 8px;">Nenhum dado disponível.</td></tr>';
-        }
-        
-        return linhasHTML;
+        return linhasHTML || '<tr><td colspan="2" style="color: #666; font-style: italic; padding: 8px;">Nenhum dado disponível.</td></tr>';
     }
 }

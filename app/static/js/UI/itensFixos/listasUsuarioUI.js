@@ -1,15 +1,13 @@
-import { API } from '../api.js'; 
+// app/static/js/UI/itensFixos/listasUsuarioUI.js
+import { API } from '../../api.js'; 
 
 export class ListasUsuarioUI {
     constructor() {
         this.nomeMenu = "📁 Minhas Listas";
         this.materiaisCache = []; 
-        this.pastaAtual = ""; // Guarda qual lista está aberta no momento
+        this.pastaAtual = "";
     }
 
-    // ==========================================
-    // 1. TELA INICIAL: EXIBE AS PASTAS CRIADAS
-    // ==========================================
     async render(containerPrincipal) {
         this.container = containerPrincipal;
         
@@ -27,19 +25,13 @@ export class ListasUsuarioUI {
     }
 
     async carregarPastas() {
-        try {
-            // 1. Busque pelo ID diretamente no document para garantir que o DOM atualizado seja escaneado
-            const pastasContainer = document.getElementById('pastas-container') || this.container.querySelector('#pastas-container');
-            
-            // 2. Trava de segurança: se mesmo assim o DOM não tiver renderizado a tempo, evita quebrar o código
-            if (!pastasContainer) {
-                console.warn("Aviso: #pastas-container ainda não está disponível no DOM. Tentando novamente...");
-                return;
-            }
+        const pastasContainer = this.container.querySelector('#pastas-container');
+        if (!pastasContainer) return; // Trava de segurança para renderização assíncrona
 
+        try {
             const listas = await API.materiais.usuario.obterListas();
 
-            if (!listas || listas.length === 0) {
+            if (!listas?.length) {
                 pastasContainer.innerHTML = `<p style="color: #aaa;">Você ainda não possui listas criadas.</p>`;
                 return;
             }
@@ -49,60 +41,42 @@ export class ListasUsuarioUI {
             listas.forEach(nomePasta => {
                 const btnPasta = document.createElement('div');
                 btnPasta.className = 'material-card';
-                btnPasta.style.cursor = 'pointer';
-                btnPasta.style.minWidth = '200px';
-                btnPasta.style.textAlign = 'center';
+                btnPasta.style.cssText = 'cursor: pointer; min-width: 200px; text-align: center;';
                 
                 btnPasta.innerHTML = `
                     <h3 style="margin: 0; font-size: 1.3rem; color: #0275d8;">📂 ${nomePasta}</h3>
                     <p style="margin-top: 8px; font-size: 0.9rem; color: #ccc;">Clique para abrir</p>
                 `;
 
-                btnPasta.addEventListener('click', () => {
-                    this.abrirListaEInjetarSidebar(nomePasta);
-                });
-
+                btnPasta.addEventListener('click', () => this.abrirListaEInjetarSidebar(nomePasta));
                 pastasContainer.appendChild(btnPasta);
             });
 
         } catch (error) {
             console.error("Erro ao carregar pastas:", error);
-            // Aqui é a linha 62 do seu erro antigo. Só alteramos para buscar de forma segura também:
-            const pastasContainerAlerta = document.getElementById('pastas-container');
-            if (pastasContainerAlerta) {
-                pastasContainerAlerta.innerHTML = `<p style="color: #ff4d4d;">Erro ao carregar o inventário.</p>`;
+            if (pastasContainer) {
+                pastasContainer.innerHTML = `<p style="color: #ff4d4d;">Erro ao carregar o inventário.</p>`;
             }
         }
     }
 
-    // ==========================================
-    // 2. LÓGICA DE FIXAR NA SIDEBAR
-    // ==========================================
     abrirListaEInjetarSidebar(nomeLista) {
         const chaveModulo = `lista-user-${nomeLista.replace(/\s+/g, '-')}`;
 
-        // Se a lista já não estiver registrada no motor do app, registramos agora
         if (!window.EngenhApp._componentes[chaveModulo]) {
             window.EngenhApp._componentes[chaveModulo] = {
                 nomeMenu: `📂 ${nomeLista}`,
-                // Encapsula o contexto para renderizar a pasta correta quando clicado na barra lateral
-                render: (containerPrincipal) => {
-                    this.container = containerPrincipal;
+                render: (container) => {
+                    this.container = container;
                     this.renderizarConteudoDaPasta(nomeLista);
                 }
             };
         }
 
-        // Adiciona ao barramento padrão do sistema. O CoreUI vai renderizar com o botão 'X' automaticamente!
         window.EngenhApp.adicionarModulo(chaveModulo);
-
-        // Renderiza imediatamente o conteúdo dela na tela central
         this.renderizarConteudoDaPasta(nomeLista);
     }
 
-    // ==========================================
-    // 3. TELA DE CATÁLOGO DA PASTA ESPECÍFICA
-    // ==========================================
     async renderizarConteudoDaPasta(nomeLista) {
         this.pastaAtual = nomeLista;
 
@@ -118,30 +92,31 @@ export class ListasUsuarioUI {
                 </div>
             </div>
             <div id="catalogo-lista-container" class="catalogo-grid">
-                <p class="loading-text">Carregando materiais de ${nomeLista}...</p>
+                <p class="loading-text">Carregando materiais...</p>
             </div>
         `;
 
         this.container.querySelector('#btn-voltar-pastas').addEventListener('click', () => this.render(this.container));
         
-        const inputBusca = this.container.querySelector('#input-busca-usuario');
-        inputBusca.addEventListener('input', (e) => this.filtrarLista(e.target.value));
+        this.container.querySelector('#input-busca-usuario')
+            .addEventListener('input', (e) => this.filtrarLista(e.target.value));
+
+        const listaContainer = this.container.querySelector('#catalogo-lista-container');
 
         try {
-            // Busca TODOS os materiais do JSON e filtra apenas os que pertencem a esta pasta
             const todosMateriais = await API.materiais.usuario.obterTodos();
             this.materiaisCache = todosMateriais.filter(mat => mat.lista_origem === nomeLista);
-            
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error("Erro ao carregar materiais da pasta:", error);
-            this.container.querySelector('#catalogo-lista-container').innerHTML = `<p style="color: #ff4d4d;">Erro ao buscar materiais desta lista.</p>`;
+            listaContainer.innerHTML = `<p style="color: #ff4d4d;">Erro ao buscar materiais desta lista.</p>`;
         }
     }
 
     exibirLista(lista) {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
-        if (lista.length === 0) {
+        
+        if (!lista.length) {
             listaContainer.innerHTML = `<p class="loading-text">Nenhum material encontrado com esses critérios.</p>`;
             return;
         }
@@ -170,24 +145,17 @@ export class ListasUsuarioUI {
 
     filtrarLista(termo) {
         const query = termo.toLowerCase().trim();
-        if (!query) {
-            this.exibirLista(this.materiaisCache);
-            return;
-        }
+        if (!query) return this.exibirLista(this.materiaisCache);
 
         const filtrados = this.materiaisCache.filter(mat => {
-            const nomeMatch = mat.nome.toLowerCase().includes(query);
-            const catMatch = mat.categoria.toLowerCase().includes(query);
-            const tagMatch = mat.metadados?.tags?.some(tag => tag.toLowerCase().includes(query));
-            return nomeMatch || catMatch || tagMatch;
+            return mat.nome?.toLowerCase().includes(query) ||
+                   mat.categoria?.toLowerCase().includes(query) ||
+                   mat.metadados?.tags?.some(tag => tag.toLowerCase().includes(query));
         });
 
         this.exibirLista(filtrados);
     }
 
-    // ==========================================
-    // 4. FICHA TÉCNICA DO MATERIAL (SEM BOTÃO DE CLONAR)
-    // ==========================================
     renderFichaTecnica(material) {
         this.container.innerHTML = `
             <div class="ficha-wrapper" style="position: relative;">
@@ -227,7 +195,6 @@ export class ListasUsuarioUI {
             </div>
         `;
 
-        // Ao clicar em voltar, recarrega a visualização da pasta atual
         this.container.querySelector('#btn-voltar-lista').addEventListener('click', () => {
             this.renderizarConteudoDaPasta(this.pastaAtual);
         });
@@ -239,7 +206,8 @@ export class ListasUsuarioUI {
         }
         
         return Object.entries(subObjeto).map(([chave, dados]) => {
-            if (!dados || dados.valor === undefined) return '';
+            if (dados?.valor == null) return ''; // Nullish check mais seguro
+            
             const nomeFormatado = chave.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             const exibeUnidade = dados.unidade !== "adimensional" ? dados.unidade : "";
             
