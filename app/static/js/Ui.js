@@ -1,6 +1,5 @@
 // UI.js
 export const CoreUI = {
-    // Controla o colapso da sidebar
     setupSidebarToggle: (sidebar, toggleBtn) => {
         if (!sidebar || !toggleBtn) return;
         let collapsed = false;
@@ -17,7 +16,6 @@ export const CoreUI = {
         });
     },
 
-    // Pinta as calculadoras na barra lateral
     renderizarListaDinamica: (listaDinamica, screen, chavesAtivas, componentes) => {
         if (!listaDinamica) return;
         listaDinamica.innerHTML = ''; 
@@ -44,10 +42,9 @@ export const CoreUI = {
                 btnDelete.className = 'sidebar-btn-delete';
                 btnDelete.innerHTML = '&times;'; 
                 btnDelete.title = `Remover ${comp.nomeMenu}`;
-
                 btnDelete.addEventListener('click', (e) => {
                     e.stopPropagation(); 
-                    window.EngenhApp.removerModulo(chave); // Comunica com o Maestro global
+                    window.EngenhApp.removerModulo(chave);
                 });
 
                 li.appendChild(btnDelete);
@@ -67,18 +64,12 @@ export const CoreUI = {
         });
     },
 
-    // Renderiza o HTML estático
+    // Mantendo apenas o que realmente é tratado de forma genérica/estática aqui
     renderScreenFixo: (screen, name) => {
         if (!screen) return;
         switch (name) {
             case 'buscar-formula':
                 screen.innerHTML = `<h2>Buscar Fórmula</h2><p>Painel de busca global.</p>`;
-                break;
-            case 'lista-online':
-                screen.innerHTML = `<h2>Lista On-line</h2><p>Catálogo centralizado de materiais do sistema.</p>`;
-                break;
-            case 'minhas-listas':
-                screen.innerHTML = `<h2>Minhas Listas</h2><p>Seus materiais salvos localmente.</p>`;
                 break;
             default:
                 screen.innerHTML = `<h2>Home</h2><p>Selecione uma opção.</p>`;
