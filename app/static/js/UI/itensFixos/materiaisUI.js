@@ -110,8 +110,12 @@ export class MateriaisUI {
                         <h3>🔩 Propriedades Mecânicas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material, {
-                                densidade: "g/cm³", modulo_elasticidade: "GPa", coeficiente_poisson: "adimensional",
-                                limite_compressao: "MPa", limite_tracao: "MPa", limite_cisalhamento: "MPa"
+                                densidade: "g/cm³", 
+                                modulo_elasticidade: "GPa",
+                                coeficiente_poisson: "adimensional",
+                                limite_compressao: "MPa",
+                                limite_tracao: "MPa",
+                                limite_cisalhamento: "MPa",
                             })}
                         </table>
                     </div>
@@ -119,8 +123,10 @@ export class MateriaisUI {
                         <h3>🔥 Propriedades Térmicas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material, {
-                                condutividade_termica: "W/(m·K)", calor_especifico: "J/(kg·K)",
-                                expansao_termica: "µm/(m·K)", ponto_fusao: "°C"
+                                calor_especifico: "J/(g·K)",
+                                condutividade_termica: "W/(m·K)", 
+                                expansao_termica: "µm/(m·K)",
+                                ponto_fusao: "°C",
                             })}
                         </table>
                     </div>
@@ -128,7 +134,8 @@ export class MateriaisUI {
                         <h3>⚡ Propriedades Elétricas</h3>
                         <table class="tabela-propriedades">
                             ${this.gerarLinhasTabela(material, {
-                                condutividade_eletrica: "S/m", resistividade: "Ω·cm"
+                                condutividade_eletrica: "S/m",
+                                resistividade: "Ω·m",
                             })}
                         </table>
                     </div>
@@ -179,18 +186,25 @@ export class MateriaisUI {
             try {
                 const listas = await API.materiais.usuario.obterListas();
                 selectListas.innerHTML = '<option value="">-- Selecionar lista existente --</option>';
-                listas.forEach(nomePasta => {
-                    selectListas.appendChild(new Option(nomePasta, nomePasta));
-                });
+                
+                if (listas && listas.length > 0) {
+                    listas.forEach(nomePasta => {
+                        selectListas.appendChild(new Option(nomePasta, nomePasta));
+                    });
+                }
             } catch (err) {
                 console.error("Erro ao ler pastas:", err);
             }
         });
 
-        this.container.querySelector('#btn-cancelar-modal').addEventListener('click', () => {
+        // Helper para limpar e fechar o modal de forma padronizada
+        const fecharModal = () => {
             modal.style.display = 'none';
             inputNovaLista.value = '';
-        });
+            selectListas.value = ''; // 💡 UX: Reseta o select também para a próxima abertura
+        };
+
+        this.container.querySelector('#btn-cancelar-modal').addEventListener('click', fecharModal);
 
         this.container.querySelector('#btn-confirmar-modal').addEventListener('click', async () => {
             const listaDestino = inputNovaLista.value.trim() || selectListas.value;
@@ -201,11 +215,11 @@ export class MateriaisUI {
             }
 
             try {
-                const resultado = await API.materiais.usuario.adicionar({ nome_lista: listaDestino, material });
+                const resultado = await API.materiais.usuario.adicionar(listaDestino, material);
+                
                 if (resultado.sucesso) {
-                    alert(resultado.mensagem);
-                    modal.style.display = 'none';
-                    inputNovaLista.value = '';
+                    alert(resultado.mensagem || "Material salvo com sucesso!");
+                    fecharModal();
                 } else {
                     alert(`Erro: ${resultado.erro}`);
                 }
@@ -219,7 +233,7 @@ export class MateriaisUI {
     gerarLinhasTabela(material, mapaPropriedades) {
         const linhasHTML = Object.entries(mapaPropriedades).map(([coluna, unidade]) => {
             const valor = material[coluna];
-            if (valor == null) return ''; // Filtra null ou undefined
+            if (valor == null || valor === '') return ''; 
             
             const nomeFormatado = coluna.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             const exibeUnidade = unidade !== "adimensional" ? unidade : "";

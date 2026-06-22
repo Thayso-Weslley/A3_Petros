@@ -10,7 +10,8 @@ export class lei_de_NewtonUI extends BaseCalculoUI {
                 { id: "aceleracao", label: "ACELERAÇÃO", si: "m/s²", placeholder: "Aceleração (m/s²)" },
                 { id: "forca", label: "FORÇA", si: "N", placeholder: "Força (N)" }
             ],
-            API.dinamica.calcularSegundaLei
+            API.dinamica.calcularSegundaLei,
+            "💡 Deixe em branco exatamente o campo que deseja calcular."
         );
         
         this.cacheLocal = null;
