@@ -21,7 +21,7 @@ export class ListasUsuarioUI extends MateriaisUI {
             <div class="catalogo-header">
                 <h2>${this.tituloSecao}</h2>
                 <p>${this.subtituloSecao}</p>
-                <div class="catalogo-search-box" id="wrapper-busca-privada" style="display: none;">
+                <div class="catalogo-search-box" id="wrapper-busca-privada">
                     <span class="search-icon">🔎</span>
                     <input type="text" id="input-busca-material" placeholder="Buscar materiais nesta pasta..." autocomplete="off">
                 </div>
@@ -63,7 +63,7 @@ export class ListasUsuarioUI extends MateriaisUI {
                         <h3>📁 ${nomePasta}</h3>
                         <span class="material-categoria">Pasta de Projetos</span>
                     </div>
-                    <button class="btn-ver-ficha" style="background: #f0ad4e;">Abrir Pasta →</button>
+                    <button class="btn-ver-ficha">Abrir Pasta →</button>
                 `;
 
                 // Ao clicar na pasta, buscamos os materiais contidos nela
@@ -80,10 +80,26 @@ export class ListasUsuarioUI extends MateriaisUI {
     // 3. Modifica o fluxo para puxar os materiais APENAS da pasta selecionada
     async abrirPasta(nomePasta) {
         this.pastaAberta = nomePasta;
+
+        // Se o usuário veio da Ficha Técnica, o cabeçalho sumiu. Precisamos reconstruir o esqueleto básico.
+        if (!this.container.querySelector('.catalogo-header')) {
+            this.container.innerHTML = `
+                <div class="catalogo-header">
+                    <h2></h2>
+                    <p></p>
+                    <div class="catalogo-search-box" id="wrapper-busca-privada">
+                        <span class="search-icon">🔎</span>
+                        <input type="text" id="input-busca-material" placeholder="Buscar materiais nesta pasta..." autocomplete="off">
+                    </div>
+                </div>
+                <div id="catalogo-lista-container" class="catalogo-grid"></div>
+            `;
+        }
+
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
         const buscaWrapper = this.container.querySelector('#wrapper-busca-privada');
         
-        // Atualiza textos da tela para contextualizar o usuário
+        // Agora os elementos com certeza existem no DOM, podemos atualizar os textos com segurança
         this.container.querySelector('.catalogo-header h2').innerText = `📁 Pasta: ${nomePasta}`;
         this.container.querySelector('.catalogo-header p').innerHTML = `
             <button id="btn-voltar-raiz" style="background: #444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-right: 8px;">← Voltar para Pastas</button>
@@ -94,7 +110,6 @@ export class ListasUsuarioUI extends MateriaisUI {
         this.container.querySelector('#btn-voltar-raiz').addEventListener('click', () => this.render(this.container));
 
         // Mostra e configura a barra de pesquisa exclusiva para os itens dessa pasta
-        buscaWrapper.style.display = 'block';
         const inputBusca = this.container.querySelector('#input-busca-material');
         inputBusca.value = '';
         inputBusca.replaceWith(inputBusca.cloneNode(true)); // Limpa listeners antigos de outras pastas

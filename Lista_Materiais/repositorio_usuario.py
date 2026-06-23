@@ -145,27 +145,28 @@ class Repositorio_Usuario:
             # Extração Mecânica
             densidade = extrair_valor("propriedades_mecanicas", "densidade")
             modulo_elasticidade = extrair_valor("propriedades_mecanicas", "modulo_elasticidade")
-            coef_poisson = extrair_valor("propriedades_mecanicas", "coeficiente_poisson")
-            lim_compressao = extrair_valor("propriedades_mecanicas", "limite_compressao")
-            lim_tracao = extrair_valor("propriedades_mecanicas", "limite_tracao") or extrair_valor("propriedades_mecanicas", "limite_laminacao")
-            lim_cisalhamento = extrair_valor("propriedades_mecanicas", "limite_cisalhamento")
+            coeficiente_poisson = extrair_valor("propriedades_mecanicas", "coeficiente_poisson")
+            limite_compressao = extrair_valor("propriedades_mecanicas", "limite_compressao")
+            limite_tracao = extrair_valor("propriedades_mecanicas", "limite_tracao") or extrair_valor("propriedades_mecanicas", "limite_laminacao")
+            limite_cisalhamento = extrair_valor("propriedades_mecanicas", "limite_cisalhamento")
 
             # Extração Térmica (Tratando chaves com e sem acentuação de forma segura na raiz ou no bloco)
-            cond_termica = extrair_valor("propriedades_termicas", "condutividade_termica")
-            calor_esp = extrair_valor("propriedades_termicas", "calor_especifico") or extrair_valor("propriedades_termicas", "calor_específico")
-            exp_termica = extrair_valor("propriedades_termicas", "expansao_termica") or extrair_valor("propriedades_termicas", "expansão_térmica")
-            pt_fusao = extrair_valor("propriedades_termicas", "ponto_fusao") or extrair_valor("propriedades_termicas", "ponto_fusão")
+            condutividade_termica = extrair_valor("propriedades_termicas", "condutividade_termica")
+            calor_especifico = extrair_valor("propriedades_termicas", "calor_especifico") or extrair_valor("propriedades_termicas", "calor_específico")
+            expansao_termica = extrair_valor("propriedades_termicas", "expansao_termica") or extrair_valor("propriedades_termicas", "expansão_térmica")
+            ponto_fusao = extrair_valor("propriedades_termicas", "ponto_fusao") or extrair_valor("propriedades_termicas", "ponto_fusão")
 
             # Extração Elétrica
-            cond_eletrica = extrair_valor("propriedades_eletricas", "condutividade_eletrica") or extrair_valor("propriedades_eletricas", "condutividade_elétrica")
+            condutividade_eletrica = extrair_valor("propriedades_eletricas", "condutividade_eletrica") or extrair_valor("propriedades_eletricas", "condutividade_elétrica")
             resistividade = extrair_valor("propriedades_eletricas", "resistividade")
 
             # Extração e conversão das Tags para String plana (SQLite amigável)
             tags_lista = dados_material.get("tags", [])
             # Garante que é uma lista e junta tudo por vírgula: "alta potência, data center"
-            tags_string = ",".join(tags_lista) if isinstance(tags_lista, list) else ""
+            tags_string = ", ".join(tags_lista) if isinstance(tags_lista, list) else ""
 
-            # 🔍 LOG DE VALIDAÇÃO DOS DADOS PLANOS NO BACK-END (COMPLETO):
+            # ==========================================================================================================================================
+            # 🔍 LOG DE VALIDAÇÃO DOS DADOS PLANOS NO BACK-END (COMPLETO): ======================================================================
             print("\n" + "═"*50)
             print("   📊 AUDITORIA DE VARIÁVEIS PRONTAS PARA O BANCO")
             print("═"*50)
@@ -180,21 +181,22 @@ class Repositorio_Usuario:
             print("🔩 PROPRIEDADES MECÂNICAS:")
             print(f"  • Densidade:             {densidade}")
             print(f"  • Módulo Elasticidade:   {modulo_elasticidade}")
-            print(f"  • Coeficiente Poisson:   {coef_poisson}")
-            print(f"  • Limite Compressão:     {lim_compressao}")
-            print(f"  • Limite Tração:         {lim_tracao}")
-            print(f"  • Limite Cisalhamento:   {lim_cisalhamento}")
+            print(f"  • Coeficiente Poisson:   {coeficiente_poisson}")
+            print(f"  • Limite Compressão:     {limite_compressao}")
+            print(f"  • Limite Tração:         {limite_tracao}")
+            print(f"  • Limite Cisalhamento:   {limite_cisalhamento}")
             print("─"*50)
             print("🔥 PROPRIEDADES TÉRMICAS:")
-            print(f"  • Condutividade Térmica: {cond_termica}")
-            print(f"  • Calor Específico:      {calor_esp}")
-            print(f"  • Expansão Térmica:      {exp_termica}")
-            print(f"  • Ponto de Fusão:        {pt_fusao}")
+            print(f"  • Condutividade Térmica: {condutividade_termica}")
+            print(f"  • Calor Específico:      {calor_especifico}")
+            print(f"  • Expansão Térmica:      {expansao_termica}")
+            print(f"  • Ponto de Fusão:        {ponto_fusao}")
             print("─"*50)
             print("⚡ PROPRIEDADES ELÉTRICAS:")
-            print(f"  • Condutividade Elétrica:{cond_eletrica}")
+            print(f"  • Condutividade Elétrica:{condutividade_eletrica}")
             print(f"  • Resistividade:         {resistividade}")
             print("═"*50 + "\n")
+            # ==========================================================================================================================================
 
             with self._conectar() as conn:
                 # Garante que a lista exista
@@ -230,9 +232,9 @@ class Repositorio_Usuario:
                         tags=excluded.tags;
                 """, (
                     id_material, nome_material, categoria, status, data_adicao, fonte,
-                    densidade, modulo_elasticidade, coef_poisson, lim_compressao, lim_tracao, lim_cisalhamento,
-                    cond_termica, calor_esp, exp_termica, pt_fusao,
-                    cond_eletrica, resistividade,
+                    densidade, modulo_elasticidade, coeficiente_poisson, limite_compressao, limite_tracao, limite_cisalhamento,
+                    condutividade_termica, calor_especifico, expansao_termica, ponto_fusao,
+                    condutividade_eletrica, resistividade,
                     tags_string
                 ))
 
