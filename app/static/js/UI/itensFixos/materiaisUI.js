@@ -1,30 +1,34 @@
 // app/static/js/UI/itensFixos/materiaisUI.js
-import { API } from '../../api.js'; 
+//
+// Tela de CONSULTA do catálogo público de materiais.
+// Responsabilidade única: listar/filtrar o catálogo on-line,
+// mostrar a ficha técnica (somente leitura) e permitir clonar
+// um material para uma lista do usuário.
+//
+// Herda de BaseCatalogoUI apenas os componentes visuais sem estado
+// (esqueleto de tela, card, ficha técnica, botão, modal). A lógica
+// de navegação/estado é toda própria desta classe.
 
-export class MateriaisUI {
+import { API } from '../../api.js';
+import { BaseCatalogoUI } from '../abstrata/baseCatalogoUI.js';
+
+export class MateriaisUI extends BaseCatalogoUI {
     constructor() {
+        super();
         this.nomeMenu = "🌐 Lista On-line";
-        this.materiaisCache = []; 
+        this.materiaisCache = [];
         this.paginaAtual = 1;
         this.temMaisItens = false;
     }
 
     async render(containerPrincipal) {
         this.container = containerPrincipal;
-        
-        this.container.innerHTML = `
-            <div class="catalogo-header">
-                <h2>🌐 Catálogo de Materiais On-line</h2>
-                <p>Consulte propriedades de materiais e semicondutores para engenharia.</p>
-                <div class="catalogo-search-box">
-                    <span class="search-icon">🔎</span>
-                    <input type="text" id="input-busca-material" placeholder="Filtrar por nome, categoria ou tag..." autocomplete="off">
-                </div>
-            </div>
-            <div id="catalogo-lista-container" class="catalogo-grid">
-                <p class="loading-text">Carregando catálogo do servidor...</p>
-            </div>
-        `;
+
+        this.container.innerHTML = this.renderEsqueleto({
+            titulo: "🌐 Catálogo de Materiais On-line",
+            subtitulo: "Consulte propriedades de materiais e semicondutores para engenharia.",
+            placeholderBusca: "Filtrar por nome, categoria ou tag...",
+        });
 
         this.container.querySelector('#input-busca-material')
             .addEventListener('input', (e) => this.filtrarLista(e.target.value));
@@ -38,7 +42,7 @@ export class MateriaisUI {
             const resultado = await API.materiais.obterCatalogo();
             this.materiaisCache = resultado.itens || [];
             this.temMaisItens = resultado.tem_mais || false;
-            
+
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error("Erro ao carregar catálogo:", error);
@@ -48,32 +52,12 @@ export class MateriaisUI {
 
     exibirLista(lista) {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
-        
-        if (!lista.length) {
-            listaContainer.innerHTML = `<p class="loading-text">Nenhum material encontrado com esses critérios.</p>`;
-            return;
-        }
-
-        listaContainer.innerHTML = ''; 
-
-        lista.forEach(material => {
-            const card = document.createElement('div');
-            card.className = 'material-card';
-            
-            const tagsBadges = material.tags?.map(tag => `<span class="tag-badge">${tag}</span>`).join('') || '';
-
-            card.innerHTML = `
-                <div class="material-card-info">
-                    <h3>${material.nome}</h3>
-                    <span class="material-categoria">${material.categoria}</span>
-                    <div class="material-tags">${tagsBadges}</div>
-                </div>
-                <button class="btn-ver-ficha">Visualizar Ficha Técnica →</button>
-            `;
-
-            card.addEventListener('click', () => this.renderFichaTecnica(material));
-            listaContainer.appendChild(card);
-        });
+        this.renderGridMateriais(
+            listaContainer,
+            lista,
+            "Nenhum material encontrado com esses critérios.",
+            (material) => this.renderFichaTecnica(material)
+        );
     }
 
     filtrarLista(termo) {
@@ -90,10 +74,37 @@ export class MateriaisUI {
     }
 
     renderFichaTecnica(material) {
+        const botaoClonar = this.criarBotao({
+            id: 'btn-salvar-inventario',
+            texto: '📥 Clonar para o Meu Inventário Personalizado',
+            variante: 'submit',
+        });
+
+        const modalSalvar = this.criarModal({
+            id: 'modal-selecionar-lista',
+            titulo: 'Salvar no Inventário',
+            conteudoHTML: `
+                <div style="margin: 16px 0;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Escolha uma lista existente:</label>
+                    <select id="select-listas-existentes" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
+                        <option value="">-- Selecionar lista existente --</option>
+                    </select>
+                </div>
+                <div style="margin: 16px 0;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Ou crie uma nova lista:</label>
+                    <input type="text" id="input-nova-lista" placeholder="Ex: Projeto TCC Semicondutores" style="width: 95%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
+                </div>
+            `,
+            botoes: [
+                { id: 'btn-cancelar-modal', texto: 'Cancelar', variante: 'neutro' },
+                { id: 'btn-confirmar-modal', texto: 'Confirmar Salvação', variante: 'confirmar' },
+            ],
+        });
+
         this.container.innerHTML = `
             <div class="ficha-wrapper" style="position: relative;">
                 <button id="btn-voltar-catalogo" class="btn-voltar">← Voltar ao Catálogo</button>
-                
+
                 <div class="ficha-header">
                     <div class="ficha-titulo-bloco">
                         <h2>${material.nome}</h2>
@@ -105,67 +116,11 @@ export class MateriaisUI {
                     </div>
                 </div>
 
-                <div class="ficha-propriedades-grid">
-                    <div class="propriedade-secao">
-                        <h3>🔩 Propriedades Mecânicas</h3>
-                        <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material, {
-                                densidade: "g/cm³", 
-                                modulo_elasticidade: "GPa",
-                                coeficiente_poisson: "adimensional",
-                                limite_compressao: "MPa",
-                                limite_tracao: "MPa",
-                                limite_cisalhamento: "MPa",
-                            })}
-                        </table>
-                    </div>
-                    <div class="propriedade-secao">
-                        <h3>🔥 Propriedades Térmicas</h3>
-                        <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material, {
-                                calor_especifico: "J/(g·K)",
-                                condutividade_termica: "W/(m·K)", 
-                                expansao_termica: "µm/(m·K)",
-                                ponto_fusao: "°C",
-                            })}
-                        </table>
-                    </div>
-                    <div class="propriedade-secao">
-                        <h3>⚡ Propriedades Elétricas</h3>
-                        <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material, {
-                                condutividade_eletrica: "S/m",
-                                resistividade: "Ω·m",
-                            })}
-                        </table>
-                    </div>
-                </div>
+                ${this.renderGridPropriedades(material)}
 
-                <div class="ficha-acoes">
-                    <button class="table-button-submit" id="btn-salvar-inventario">
-                        📥 Clonar para o Meu Inventário Personalizado
-                    </button>
-                </div>
+                ${this.renderBlocoAcoes(botaoClonar)}
 
-                <div id="modal-selecionar-lista" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; justify-content: center; align-items: center;">
-                    <div style="background: #1a2436; padding: 24px; border-radius: 8px; width: 90%; max-width: 450px; border: 1px solid #0275d8; color: #fff;">
-                        <h3 style="margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 8px;">Salvar no Inventário</h3>
-                        <div style="margin: 16px 0;">
-                            <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Escolha uma lista existente:</label>
-                            <select id="select-listas-existentes" style="width: 100%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
-                                <option value="">-- Selecionar lista existente --</option>
-                            </select>
-                        </div>
-                        <div style="margin: 16px 0;">
-                            <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; color: #ccc;">Ou crie uma nova lista:</label>
-                            <input type="text" id="input-nova-lista" placeholder="Ex: Projeto TCC Semicondutores" style="width: 95%; padding: 8px; background: #0f172a; color: #fff; border: 1px solid #444; border-radius: 4px;">
-                        </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
-                            <button id="btn-cancelar-modal" style="background: #444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Cancelar</button>
-                            <button id="btn-confirmar-modal" style="background: #2baf4a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Confirmar Salvação</button>
-                        </div>
-                    </div>
-                </div>
+                ${modalSalvar}
             </div>
         `;
 
@@ -186,7 +141,7 @@ export class MateriaisUI {
             try {
                 const listas = await API.materiais.usuario.obterListas();
                 selectListas.innerHTML = '<option value="">-- Selecionar lista existente --</option>';
-                
+
                 if (listas && listas.length > 0) {
                     listas.forEach(nomePasta => {
                         selectListas.appendChild(new Option(nomePasta, nomePasta));
@@ -216,7 +171,7 @@ export class MateriaisUI {
 
             try {
                 const resultado = await API.materiais.usuario.adicionar(listaDestino, material);
-                
+
                 if (resultado.sucesso) {
                     alert(resultado.mensagem || "Material salvo com sucesso!");
                     fecharModal();
@@ -228,26 +183,5 @@ export class MateriaisUI {
                 console.error(error);
             }
         });
-    }
-
-    gerarLinhasTabela(material, mapaPropriedades) {
-        const linhasHTML = Object.entries(mapaPropriedades).map(([coluna, unidade]) => {
-            const valor = material[coluna];
-            if (valor == null || valor === '') return ''; 
-            
-            const nomeFormatado = coluna.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
-            const exibeUnidade = unidade !== "adimensional" ? unidade : "";
-            
-            return `
-                <tr>
-                    <td class="prop-nome" style="padding: 8px; color: #aaa;">${nomeFormatado}</td>
-                    <td class="prop-valor" style="padding: 8px; color: #fff; font-weight: bold; text-align: right;">
-                        ${valor} <span class="prop-unidade" style="color: #0275d8; font-size: 0.85rem; margin-left: 4px;">${exibeUnidade}</span>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        return linhasHTML || '<tr><td colspan="2" style="color: #666; font-style: italic; padding: 8px;">Nenhum dado disponível.</td></tr>';
     }
 }

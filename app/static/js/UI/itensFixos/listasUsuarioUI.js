@@ -1,129 +1,230 @@
-import { MateriaisUI } from './materiaisUI.js';
-import { API } from '../../api.js';
+// app/static/js/UI/itensFixos/listasUsuarioUI.js
+//
+// Tela de CRUD do inventário PESSOAL do usuário:
+// - listar pastas, criar pasta, renomear pasta, excluir pasta
+// - filtrar pastas (na raiz) ou materiais (dentro de uma pasta) pela mesma busca
+// - abrir pasta e ver materiais salvos
+// - ver ficha técnica do material (somente leitura, igual ao catálogo)
+// - remover material da pasta
+// - compartilhar material com o catálogo central (crowdsourcing)
+//
+// Herda de BaseCatalogoUI apenas os componentes visuais sem estado
+// (esqueleto de tela, card, ficha técnica, botão). A lógica de
+// navegação/estado (pastas, pasta aberta) é toda própria desta classe.
 
-export class ListasUsuarioUI extends MateriaisUI {
+import { API } from '../../api.js';
+import { BaseCatalogoUI } from '../abstrata/baseCatalogoUI.js';
+
+export class ListasUsuarioUI extends BaseCatalogoUI {
     constructor() {
         super();
         this.nomeMenu = "📁 Meus Inventários";
         this.tituloSecao = "📁 Meus Inventários Privados";
         this.subtituloSecao = "Selecione uma pasta para gerenciar seus materiais e semicondutores.";
-        
-        // Estado extra para controlar em qual pasta o usuário está navegando
-        this.pastaAberta = null; 
+
+        this.pastasCache = [];
+        this.materiaisCache = [];
+        // Estado de navegação: null = está na raiz vendo as pastas; string = está dentro dessa pasta
+        this.pastaAberta = null;
     }
 
-    // 1. Altera a renderização inicial para focar nas PASTAS, ocultando o input de busca geral
+    // ==========================================
+    // RAIZ: lista de pastas
+    // ==========================================
+
     async render(containerPrincipal) {
         this.container = containerPrincipal;
         this.pastaAberta = null; // Reseta o estado ao voltar para a raiz
 
-        this.container.innerHTML = `
-            <div class="catalogo-header">
-                <h2>${this.tituloSecao}</h2>
-                <p>${this.subtituloSecao}</p>
-                <div class="catalogo-search-box" id="wrapper-busca-privada">
-                    <span class="search-icon">🔎</span>
-                    <input type="text" id="input-busca-material" placeholder="Buscar materiais nesta pasta..." autocomplete="off">
-                </div>
-            </div>
-            <div id="catalogo-lista-container" class="catalogo-grid">
-                <p class="loading-text">Carregando pastas do seu inventário...</p>
-            </div>
-        `;
+        const botaoNovaLista = this.criarBotao({
+            id: 'btn-nova-lista',
+            texto: '➕ Nova Lista',
+            variante: 'submit',
+        });
 
-        // Carrega as pastas primeiro
+        this.container.innerHTML = this.renderEsqueleto({
+            titulo: this.tituloSecao,
+            subtitulo: this.subtituloSecao,
+            placeholderBusca: "Filtrar pastas por nome...",
+            acoesExtras: `<div class="catalogo-acoes-topo" style="display: flex; gap: 10px; margin: 12px 0;">${botaoNovaLista}</div>`,
+        });
+
+        this.container.querySelector('#input-busca-material')
+            .addEventListener('input', (e) => this.filtrarPastas(e.target.value));
+
+        this.container.querySelector('#btn-nova-lista')
+            .addEventListener('click', () => this.criarNovaLista());
+
         await this.carregarPastas();
     }
 
-    // 2. Novo método para buscar e exibir as pastas criadas pelo usuário
     async carregarPastas() {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
         try {
             const listas = await API.materiais.usuario.obterListas();
-            
-            if (!listas || listas.length === 0) {
-                listaContainer.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #888;">
-                        <p>Você ainda não possui pastas ou listas criadas.</p>
-                        <small>Vá ao Catálogo On-line e clone um material para iniciar seu inventário!</small>
-                    </div>
-                `;
-                return;
-            }
+            this.pastasCache = listas || [];
 
-            listaContainer.innerHTML = '';
-
-            listas.forEach(nomePasta => {
-                const pastaCard = document.createElement('div');
-                pastaCard.className = 'material-card pasta-card'; // Você pode estilizar .pasta-card no CSS com uma borda amarela/azul
-                pastaCard.style.borderLeft = '4px solid #f0ad4e'; // Destaque visual de pasta
-                
-                pastaCard.innerHTML = `
-                    <div class="material-card-info" style="cursor: pointer;">
-                        <h3>📁 ${nomePasta}</h3>
-                        <span class="material-categoria">Pasta de Projetos</span>
-                    </div>
-                    <button class="btn-ver-ficha">Abrir Pasta →</button>
-                `;
-
-                // Ao clicar na pasta, buscamos os materiais contidos nela
-                pastaCard.addEventListener('click', () => this.abrirPasta(nomePasta));
-                listaContainer.appendChild(pastaCard);
-            });
-
+            this.exibirPastas(this.pastasCache);
         } catch (error) {
             console.error("Erro ao carregar pastas do usuário:", error);
             listaContainer.innerHTML = `<p style="color: #ff4d4d;">Não foi possível carregar suas pastas.</p>`;
         }
     }
 
-    // 3. Modifica o fluxo para puxar os materiais APENAS da pasta selecionada
+    exibirPastas(listaDePastas) {
+        const listaContainer = this.container.querySelector('#catalogo-lista-container');
+
+        if (!listaDePastas || listaDePastas.length === 0) {
+            listaContainer.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #888;">
+                    <p>Você ainda não possui pastas ou listas criadas.</p>
+                    <small>Clique em "➕ Nova Lista" ou vá ao Catálogo On-line e clone um material para iniciar seu inventário!</small>
+                </div>
+            `;
+            return;
+        }
+
+        listaContainer.innerHTML = '';
+
+        listaDePastas.forEach(nomePasta => {
+            const botaoAbrir = this.criarBotao({ id: '', texto: 'Abrir Pasta →', variante: 'nenhum', classeExtra: 'btn-ver-ficha btn-abrir-pasta' });
+            const botaoRenomear = this.criarBotao({ id: '', texto: '✏️ Renomear', variante: 'neutro', classeExtra: 'btn-renomear-pasta' });
+            const botaoExcluir = this.criarBotao({ id: '', texto: '🗑️ Excluir', variante: 'perigo', classeExtra: 'btn-excluir-pasta' });
+
+            const pastaCard = document.createElement('div');
+            pastaCard.className = 'material-card pasta-card';
+            pastaCard.style.borderLeft = '4px solid #f0ad4e';
+
+            pastaCard.innerHTML = `
+                <div class="material-card-info" style="cursor: pointer;">
+                    <h3>📁 ${nomePasta}</h3>
+                    <span class="material-categoria">Pasta de Projetos</span>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    ${botaoAbrir}
+                    ${botaoRenomear}
+                    ${botaoExcluir}
+                </div>
+            `;
+
+            pastaCard.querySelector('.btn-abrir-pasta')
+                .addEventListener('click', () => this.abrirPasta(nomePasta));
+
+            pastaCard.querySelector('.btn-renomear-pasta')
+                .addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.renomearLista(nomePasta);
+                });
+
+            pastaCard.querySelector('.btn-excluir-pasta')
+                .addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.excluirLista(nomePasta);
+                });
+
+            listaContainer.appendChild(pastaCard);
+        });
+    }
+
+    filtrarPastas(termo) {
+        const query = termo.toLowerCase().trim();
+        if (!query) return this.exibirPastas(this.pastasCache);
+
+        const filtradas = this.pastasCache.filter(nomePasta =>
+            nomePasta.toLowerCase().includes(query)
+        );
+
+        this.exibirPastas(filtradas);
+    }
+
+    async criarNovaLista() {
+        const nome = prompt("Nome da nova lista:");
+        const nomeLimpo = nome?.trim();
+        if (!nomeLimpo) return;
+
+        try {
+            const resultado = await API.materiais.usuario.criarLista(nomeLimpo);
+            if (resultado.sucesso || !resultado.erro) {
+                await this.carregarPastas();
+            } else {
+                alert(`Erro ao criar lista: ${resultado.erro}`);
+            }
+        } catch (error) {
+            alert("Erro de comunicação com o servidor ao criar a lista.");
+            console.error(error);
+        }
+    }
+
+    async renomearLista(nomeAntigo) {
+        const nomeNovo = prompt(`Novo nome para a lista "${nomeAntigo}":`, nomeAntigo);
+        const nomeLimpo = nomeNovo?.trim();
+        if (!nomeLimpo || nomeLimpo === nomeAntigo) return;
+
+        try {
+            const resultado = await API.materiais.usuario.renomearLista(nomeAntigo, nomeLimpo);
+            if (resultado.sucesso || !resultado.erro) {
+                await this.carregarPastas();
+            } else {
+                alert(`Erro ao renomear: ${resultado.erro}`);
+            }
+        } catch (error) {
+            alert("Erro de comunicação com o servidor ao renomear a lista.");
+            console.error(error);
+        }
+    }
+
+    async excluirLista(nomeLista) {
+        if (!confirm(`Tem certeza que deseja excluir a lista "${nomeLista}" e todos os vínculos com seus materiais? Esta ação não pode ser desfeita.`)) return;
+
+        try {
+            const resultado = await API.materiais.usuario.deletarLista(nomeLista);
+            if (resultado.sucesso || !resultado.erro) {
+                await this.carregarPastas();
+            } else {
+                alert(`Erro ao excluir: ${resultado.erro}`);
+            }
+        } catch (error) {
+            alert("Erro de comunicação com o servidor ao excluir a lista.");
+            console.error(error);
+        }
+    }
+
+    // ==========================================
+    // DENTRO DE UMA PASTA: materiais salvos
+    // ==========================================
+
     async abrirPasta(nomePasta) {
         this.pastaAberta = nomePasta;
 
-        // Se o usuário veio da Ficha Técnica, o cabeçalho sumiu. Precisamos reconstruir o esqueleto básico.
-        if (!this.container.querySelector('.catalogo-header')) {
-            this.container.innerHTML = `
-                <div class="catalogo-header">
-                    <h2></h2>
-                    <p></p>
-                    <div class="catalogo-search-box" id="wrapper-busca-privada">
-                        <span class="search-icon">🔎</span>
-                        <input type="text" id="input-busca-material" placeholder="Buscar materiais nesta pasta..." autocomplete="off">
-                    </div>
-                </div>
-                <div id="catalogo-lista-container" class="catalogo-grid"></div>
-            `;
-        }
+        const botaoVoltarRaiz = this.criarBotao({
+            id: 'btn-voltar-raiz',
+            texto: '← Voltar para Pastas',
+            variante: 'neutro',
+        });
+
+        // Sempre reconstrói o esqueleto completo (header + busca + grid).
+        // Isso garante que o campo de busca SEMPRE existe aqui, não importa
+        // se viemos da raiz ou da ficha técnica de um material.
+        this.container.innerHTML = this.renderEsqueleto({
+            titulo: `📁 Pasta: ${nomePasta}`,
+            subtitulo: `${botaoVoltarRaiz} Visualizando materiais salvos nesta pasta.`,
+            placeholderBusca: "Buscar materiais nesta pasta...",
+        });
 
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
-        const buscaWrapper = this.container.querySelector('#wrapper-busca-privada');
-        
-        // Agora os elementos com certeza existem no DOM, podemos atualizar os textos com segurança
-        this.container.querySelector('.catalogo-header h2').innerText = `📁 Pasta: ${nomePasta}`;
-        this.container.querySelector('.catalogo-header p').innerHTML = `
-            <button id="btn-voltar-raiz" style="background: #444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-right: 8px;">← Voltar para Pastas</button>
-            Visualizando materiais salvos nesta pasta.
-        `;
 
-        // Ativa o botão de voltar para a raiz de pastas
-        this.container.querySelector('#btn-voltar-raiz').addEventListener('click', () => this.render(this.container));
+        this.container.querySelector('#btn-voltar-raiz')
+            .addEventListener('click', () => this.render(this.container));
 
-        // Mostra e configura a barra de pesquisa exclusiva para os itens dessa pasta
-        const inputBusca = this.container.querySelector('#input-busca-material');
-        inputBusca.value = '';
-        inputBusca.replaceWith(inputBusca.cloneNode(true)); // Limpa listeners antigos de outras pastas
         this.container.querySelector('#input-busca-material')
             .addEventListener('input', (e) => this.filtrarLista(e.target.value));
 
         listaContainer.innerHTML = '<p class="loading-text">Buscando materiais da pasta...</p>';
 
         try {
-            // Usa o método da API que filtra por pasta
             const resultado = await API.materiais.usuario.obterMateriaisDaLista(nomePasta);
             this.materiaisCache = resultado.itens || resultado || [];
-            
-            // Invoca o método herdado de materiaisUI que renderiza o grid perfeitamente
+
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error(`Erro ao carregar materiais da lista ${nomePasta}:`, error);
@@ -131,12 +232,50 @@ export class ListasUsuarioUI extends MateriaisUI {
         }
     }
 
-    // 4. Sobrescreve a Ficha Técnica para manter o escopo da pasta ativa ao voltar
+    exibirLista(lista) {
+        const listaContainer = this.container.querySelector('#catalogo-lista-container');
+        this.renderGridMateriais(
+            listaContainer,
+            lista,
+            "Nenhum material encontrado nesta pasta.",
+            (material) => this.renderFichaTecnica(material)
+        );
+    }
+
+    filtrarLista(termo) {
+        const query = termo.toLowerCase().trim();
+        if (!query) return this.exibirLista(this.materiaisCache);
+
+        const filtrados = this.materiaisCache.filter(mat => {
+            return mat.nome?.toLowerCase().includes(query) ||
+                   mat.categoria?.toLowerCase().includes(query) ||
+                   mat.tags?.some(tag => tag.toLowerCase().includes(query));
+        });
+
+        this.exibirLista(filtrados);
+    }
+
+    // ==========================================
+    // FICHA TÉCNICA (somente leitura) + ações de CRUD do material
+    // ==========================================
+
     renderFichaTecnica(material) {
+        const botaoCompartilhar = this.criarBotao({
+            id: 'btn-compartilhar-central',
+            texto: '🌐 Compartilhar com o Catálogo Central',
+            variante: 'submit',
+        });
+
+        const botaoRemover = this.criarBotao({
+            id: 'btn-remover-inventario',
+            texto: '🗑️ Remover desta Pasta',
+            variante: 'perigo',
+        });
+
         this.container.innerHTML = `
             <div class="ficha-wrapper" style="position: relative;">
                 <button id="btn-voltar-pasta" class="btn-voltar">← Voltar para a Pasta (${this.pastaAberta})</button>
-                
+
                 <div class="ficha-header">
                     <div class="ficha-titulo-bloco">
                         <h2>${material.nome}</h2>
@@ -148,58 +287,35 @@ export class ListasUsuarioUI extends MateriaisUI {
                     </div>
                 </div>
 
-                <div class="ficha-propriedades-grid">
-                    <div class="propriedade-secao">
-                        <h3>🔩 Propriedades Mecânicas</h3>
-                        <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material, {
-                                densidade: "g/cm³", 
-                                modulo_elasticidade: "GPa",
-                                coeficiente_poisson: "adimensional",
-                                limite_compressao: "MPa",
-                                limite_tracao: "MPa",
-                                limite_cisalhamento: "MPa",
-                            })}
-                        </table>
-                    </div>
-                    <div class="propriedade-secao">
-                        <h3>🔥 Propriedades Térmicas</h3>
-                        <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material, {
-                                calor_especifico: "J/(g·K)",
-                                condutividade_termica: "W/(m·K)", 
-                                expansao_termica: "µm/(m·K)",
-                                ponto_fusao: "°C",
-                            })}
-                        </table>
-                    </div>
-                    <div class="propriedade-secao">
-                        <h3>⚡ Propriedades Elétricas</h3>
-                        <table class="tabela-propriedades">
-                            ${this.gerarLinhasTabela(material, {
-                                condutividade_eletrica: "S/m",
-                                resistividade: "Ω·m",
-                            })}
-                        </table>
-                    </div>
-                </div>
+                ${this.renderGridPropriedades(material)}
 
-                <div class="ficha-acoes" style="display: flex; gap: 12px; margin-top: 20px;">
-                    <button class="table-button-danger" id="btn-remover-inventario" style="background: #d9534f; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                        🗑️ Remover desta Pasta
-                    </button>
-                </div>
+                ${this.renderBlocoAcoes(botaoCompartilhar, botaoRemover)}
             </div>
         `;
 
         this.configurarEventosFichaPrivada(material);
     }
 
-    // 5. Configura as ações garantindo o retorno para a pasta correta e o DELETE correto
     configurarEventosFichaPrivada(material) {
-        // Ao clicar em voltar dentro da ficha, ele retorna para a pasta aberta, não para a raiz do app
+        // Voltar retorna para a pasta aberta, não para a raiz do app
         this.container.querySelector('#btn-voltar-pasta').addEventListener('click', () => {
             this.abrirPasta(this.pastaAberta);
+        });
+
+        this.container.querySelector('#btn-compartilhar-central').addEventListener('click', async () => {
+            if (!confirm(`Enviar "${material.nome}" para a fila de homologação do catálogo central?`)) return;
+
+            try {
+                const resultado = await API.materiais.usuario.compartilharComCentral(this.pastaAberta, material.nome);
+                if (resultado.sucesso || !resultado.erro) {
+                    alert(resultado.mensagem || "Material enviado para homologação!");
+                } else {
+                    alert(`Erro ao compartilhar: ${resultado.erro}`);
+                }
+            } catch (error) {
+                alert("Erro de comunicação com o servidor ao compartilhar o material.");
+                console.error(error);
+            }
         });
 
         this.container.querySelector('#btn-remover-inventario').addEventListener('click', async () => {
@@ -207,14 +323,11 @@ export class ListasUsuarioUI extends MateriaisUI {
 
             try {
                 const idOuNome = material.id || material.nome;
-
-                // Passa a pasta correta controlada pelo estado da classe
                 const resultado = await API.materiais.usuario.deletarMaterial(this.pastaAberta, idOuNome);
-                
+
                 if (resultado.sucesso || !resultado.erro) {
                     alert("Material removido com sucesso!");
-                    // Atualiza abrindo a mesma pasta para ver as alterações refletidas
-                    this.abrirPasta(this.pastaAberta); 
+                    this.abrirPasta(this.pastaAberta);
                 } else {
                     alert(`Erro ao remover: ${resultado.erro}`);
                 }
