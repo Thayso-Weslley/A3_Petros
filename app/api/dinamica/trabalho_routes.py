@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from Formulas_e_Calculos.dinamica.trabalho import Trabalho
 
-trabalho_bp = Blueprint('trabalho_api', __name__, url_prefix='/api/trabalho')
+trabalho_bp = Blueprint('trabalho_api', __name__, url_prefix='/api/dinamica/trabalho')
 
 @trabalho_bp.route('/calcular', methods=['POST'])
 def calcular_trabalho():
