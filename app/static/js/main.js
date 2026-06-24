@@ -14,6 +14,7 @@ import { atritoUI } from './UI/atritoUI.js';
 import { formula_de_NavierUI } from './UI/formula_de_NavierUI.js';
 import { equacao_de_EulerUI } from './UI/equacao_de_EulerUI.js';
 
+// old version
 document.addEventListener('DOMContentLoaded', () => {
     // 1. MAPEAMENTO DE DOM
     const DOM = {
