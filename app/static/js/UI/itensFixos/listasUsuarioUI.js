@@ -24,6 +24,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
 
         this.pastasCache = [];
         this.materiaisCache = [];
+        this.materiaisCachePorPasta = {};
         // Estado de navegação: null = está na raiz vendo as pastas; string = está dentro dessa pasta
         this.pastaAberta = null;
     }
@@ -60,7 +61,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
 
     async carregarPastas() {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
-        try {
+        try {   
             const listas = await API.materiais.usuario.obterListas();
             this.pastasCache = listas || [];
 
@@ -87,28 +88,41 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         listaContainer.innerHTML = '';
 
         listaDePastas.forEach(nomePasta => {
+            // Refatoração: Botões de ação agora são apenas ícones menores e usam a nova classe CSS
+            const botaoRenomear = this.criarBotao({ id: '', texto: '✏️', variante: 'neutro', classeExtra: 'btn-icon-pasta btn-renomear-pasta' });
+            const botaoExcluir = this.criarBotao({ id: '', texto: '🗑️', variante: 'perigo', classeExtra: 'btn-icon-pasta btn-excluir-pasta' });
+            // O botão de abrir continua no fluxo normal do card.
             const botaoAbrir = this.criarBotao({ id: '', texto: 'Abrir Pasta →', variante: 'nenhum', classeExtra: 'btn-ver-ficha btn-abrir-pasta' });
-            const botaoRenomear = this.criarBotao({ id: '', texto: '✏️ Renomear', variante: 'neutro', classeExtra: 'btn-renomear-pasta' });
-            const botaoExcluir = this.criarBotao({ id: '', texto: '🗑️ Excluir', variante: 'perigo', classeExtra: 'btn-excluir-pasta' });
 
             const pastaCard = document.createElement('div');
+            // A classe 'pasta-card' é usada como gancho no CSS
             pastaCard.className = 'material-card pasta-card';
             pastaCard.style.borderLeft = '4px solid #f0ad4e';
 
+            // Nova Estrutura HTML: Ações em container absoluto no canto superior direito
             pastaCard.innerHTML = `
+                <div class="card-actions-container">
+                    ${botaoRenomear}
+                    ${botaoExcluir}
+                </div>
+                
                 <div class="material-card-info" style="cursor: pointer;">
                     <h3>📁 ${nomePasta}</h3>
                     <span class="material-categoria">Pasta de Projetos</span>
                 </div>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                
+                <!-- O botão de abrir permanece na base, fora do container absoluto -->
+                <div>
                     ${botaoAbrir}
-                    ${botaoRenomear}
-                    ${botaoExcluir}
                 </div>
             `;
 
+            // Event listeners (permanecem os mesmos)
             pastaCard.querySelector('.btn-abrir-pasta')
-                .addEventListener('click', () => this.abrirPasta(nomePasta));
+                .addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.abrirPasta(nomePasta);
+                });
 
             pastaCard.querySelector('.btn-renomear-pasta')
                 .addEventListener('click', (e) => {
@@ -121,6 +135,9 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
                     e.stopPropagation();
                     this.excluirLista(nomePasta);
                 });
+
+            // Clique no card abre a pasta
+            pastaCard.addEventListener('click', () => this.abrirPasta(nomePasta));
 
             listaContainer.appendChild(pastaCard);
         });
@@ -211,6 +228,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
             placeholderBusca: "Buscar materiais nesta pasta...",
         });
 
+
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
 
         this.container.querySelector('#btn-voltar-raiz')
@@ -224,22 +242,91 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         try {
             const resultado = await API.materiais.usuario.obterMateriaisDaLista(nomePasta);
             this.materiaisCache = resultado.itens || resultado || [];
+            this.materiaisCachePorPasta[nomePasta] = this.materiaisCache;
 
             this.exibirLista(this.materiaisCache);
         } catch (error) {
             console.error(`Erro ao carregar materiais da lista ${nomePasta}:`, error);
+
+            const cached = this.materiaisCachePorPasta[nomePasta];
+            if (cached && cached.length > 0) {
+                this.materiaisCache = cached;
+                this.exibirLista(this.materiaisCache);
+                return;
+            }
+
             listaContainer.innerHTML = `<p style="color: #ff4d4d;">Erro ao carregar os materiais desta pasta.</p>`;
         }
     }
 
     exibirLista(lista) {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
+        
+        // 1. Chama a renderização padrão (que agora vai usar o nosso método sobrescrito acima)
         this.renderGridMateriais(
             listaContainer,
             lista,
             "Nenhum material encontrado nesta pasta.",
             (material) => this.renderFichaTecnica(material)
         );
+
+        // 2. Mapeia os cards que acabaram de ser injetados no DOM para adicionar o listener de exclusão
+        const cards = listaContainer.querySelectorAll('.material-card');
+        cards.forEach((card, index) => {
+            const material = lista[index];
+            const btnExcluir = card.querySelector('.btn-excluir-material');
+            
+            if (btnExcluir) {
+                btnExcluir.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Crucial: impede que o clique abra a ficha técnica do material
+                    
+                    // Executa a sua lógica de exclusão passando a pasta atual e o objeto do material
+                    this.excluirMaterialDaPasta(this.pastaAberta, material);
+                });
+            }
+        });
+    }
+
+    // Exemplo de assinatura do método que vai processar a exclusão no banco/estado
+    async excluirMaterialDaPasta(nomePasta, material) {
+        if (!confirm(`Tem certeza que deseja remover ${material.nome} da pasta "${this.pastaAberta}"?`)) return;
+        
+        try {
+            const idOuNome = material.id || material.nome;
+            const resultado = await API.materiais.usuario.deletarMaterial(this.pastaAberta, idOuNome);
+
+            if (resultado.sucesso || !resultado.erro) {
+                alert("Material removido com sucesso!");
+                this.abrirPasta(this.pastaAberta);
+            } else {
+                alert(`Erro ao remover: ${resultado.erro}`);
+            }
+        } catch (error) {
+            alert("Erro de comunicação com o servidor.");
+            console.error(error);
+        }
+    }
+    
+    // Sobrescreve o método da classe pai APENAS para a interface do usuário logado
+    renderConteudoCardMaterial(material) {
+        // Pega o HTML padrão (as infos e o botão de "Visualizar Ficha Técnica")
+        const htmlBase = super.renderConteudoCardMaterial(material);
+        
+        // Cria o botão de excluir seguindo o mesmo padrão visual dos cards de pasta
+        const botaoExcluir = this.criarBotao({ 
+            id: '', 
+            texto: '🗑️', 
+            variante: 'perigo', 
+            classeExtra: 'btn-icon-pasta btn-excluir-material' 
+        });
+
+        // Retorna o container absoluto no topo + o conteúdo base do card
+        return `
+            <div class="card-actions-container">
+                ${botaoExcluir}
+            </div>
+            ${htmlBase}
+        `;
     }
 
     filtrarLista(termo) {
@@ -266,12 +353,6 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
             variante: 'submit',
         });
 
-        const botaoRemover = this.criarBotao({
-            id: 'btn-remover-inventario',
-            texto: '🗑️ Remover desta Pasta',
-            variante: 'perigo',
-        });
-
         this.container.innerHTML = `
             <div class="ficha-wrapper" style="position: relative;">
                 <button id="btn-voltar-pasta" class="btn-voltar">← Voltar para a Pasta (${this.pastaAberta})</button>
@@ -289,7 +370,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
 
                 ${this.renderGridPropriedades(material)}
 
-                ${this.renderBlocoAcoes(botaoCompartilhar, botaoRemover)}
+                ${this.renderBlocoAcoes(botaoCompartilhar)}
             </div>
         `;
 
@@ -302,6 +383,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
             this.abrirPasta(this.pastaAberta);
         });
 
+        // Botão de compartilhar com o catálogo central
         this.container.querySelector('#btn-compartilhar-central').addEventListener('click', async () => {
             if (!confirm(`Enviar "${material.nome}" para a fila de homologação do catálogo central?`)) return;
 
@@ -314,25 +396,6 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
                 }
             } catch (error) {
                 alert("Erro de comunicação com o servidor ao compartilhar o material.");
-                console.error(error);
-            }
-        });
-
-        this.container.querySelector('#btn-remover-inventario').addEventListener('click', async () => {
-            if (!confirm(`Tem certeza que deseja remover ${material.nome} da pasta "${this.pastaAberta}"?`)) return;
-
-            try {
-                const idOuNome = material.id || material.nome;
-                const resultado = await API.materiais.usuario.deletarMaterial(this.pastaAberta, idOuNome);
-
-                if (resultado.sucesso || !resultado.erro) {
-                    alert("Material removido com sucesso!");
-                    this.abrirPasta(this.pastaAberta);
-                } else {
-                    alert(`Erro ao remover: ${resultado.erro}`);
-                }
-            } catch (error) {
-                alert("Erro de comunicação com o servidor.");
                 console.error(error);
             }
         });

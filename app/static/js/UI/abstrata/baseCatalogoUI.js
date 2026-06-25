@@ -113,7 +113,7 @@ export class BaseCatalogoUI {
         `;
     }
 
-    /**
+    /** 
      * Renderiza a grade de materiais dentro do container já existente
      * na tela, incluindo o estado vazio.
      * @param {HTMLElement} listaContainer
