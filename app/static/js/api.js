@@ -1,3 +1,61 @@
+const USUARIO_CACHE_STORAGE_KEY = 'engenhapp.usuarioMateriaisCache';
+const CATALOGO_CACHE_STORAGE_KEY = 'engenhapp.catalogoMateriaisCache';
+
+/**
+ *  Carrega o cache do usuário do sessionStorage, retornando um objeto com as pastas e materiais por pasta.
+ */
+function carregarCacheUsuario() {
+    try {
+        const raw = sessionStorage.getItem(USUARIO_CACHE_STORAGE_KEY);
+        if (!raw) return { pastas: null, materiaisPorPasta: {} };
+        const parsed = JSON.parse(raw);
+        return {
+            pastas: Array.isArray(parsed.pastas) ? parsed.pastas : null,
+            materiaisPorPasta: parsed.materiaisPorPasta && typeof parsed.materiaisPorPasta === 'object'
+                ? parsed.materiaisPorPasta
+                : {}
+        };
+    } catch (err) {
+        console.warn('Não foi possível carregar cache do usuário:', err);
+        return { pastas: null, materiaisPorPasta: {} };
+    }
+}
+
+
+function salvarCacheUsuario(cache) {
+    try {
+        sessionStorage.setItem(USUARIO_CACHE_STORAGE_KEY, JSON.stringify(cache));
+    } catch (err) {
+        console.warn('Não foi possível salvar cache do usuário:', err);
+    }
+}
+
+function carregarCacheCatalogo() {
+    try {
+        const raw = sessionStorage.getItem(CATALOGO_CACHE_STORAGE_KEY);
+        if (!raw) return { paginas: {} };
+        const parsed = JSON.parse(raw);
+        return {
+            paginas: parsed.paginas && typeof parsed.paginas === 'object' ? parsed.paginas : {}
+        };
+    } catch (err) {
+        console.warn('Não foi possível carregar cache do catálogo:', err);
+        return { paginas: {} };
+    }
+}
+
+function salvarCacheCatalogo(cache) {
+    try {
+        sessionStorage.setItem(CATALOGO_CACHE_STORAGE_KEY, JSON.stringify(cache));
+    } catch (err) {
+        console.warn('Não foi possível salvar cache do catálogo:', err);
+    }
+}
+
+function gerarChaveCatalogo(page, perPage, sortBy, direction) {
+    return `${page}|${perPage}|${sortBy}|${direction}`;
+}
+
 export const API = {
     dinamica: {
         /**
@@ -115,30 +173,77 @@ export const API = {
     },
 
     materiais: {
-        async obterCatalogo() {
-            const response = await fetch('/api/materiais/catalogo');
-            if (!response.ok) throw new Error("Erro ao buscar catálogo");
-            return await response.json();
+        _cacheCatalogo: carregarCacheCatalogo(),
+
+        async obterCatalogo(page = 1, perPage = 200, sortBy = 'nome', direction = 'ASC') {
+            const cacheKey = gerarChaveCatalogo(page, perPage, sortBy, direction);
+            const cached = this._cacheCatalogo.paginas[cacheKey];
+            if (cached) {
+                return cached;
+            }
+
+            const query = new URLSearchParams({
+                page: String(page),
+                per_page: String(perPage),
+                sort_by: sortBy,
+                direction: direction
+            });
+            const response = await fetch(`/api/materiais/catalogo?${query.toString()}`);
+            if (!response.ok) {
+                if (cached) return cached;
+                throw new Error("Erro ao buscar catálogo");
+            }
+
+            const dados = await response.json();
+            this._cacheCatalogo.paginas[cacheKey] = dados;
+            salvarCacheCatalogo(this._cacheCatalogo);
+            return dados;
         },
 
         // Sub-objeto para organizar as requisições específicas do inventário do usuário
         usuario: {
+            _cache: carregarCacheUsuario(),
+
             // ==========================================
             // OPERAÇÕES DE LEITURA (GET)
             // ==========================================
 
             /** Retorna todas as listas cadastradas pelo usuário no banco. */
             async obterListas() {
+                if (this._cache.pastas) {
+                    return this._cache.pastas;
+                }
+
                 const res = await fetch('/api/usuario/listas');
-                if (!res.ok) throw new Error("Erro na rede ao buscar listas do usuário.");
-                return await res.json();
+                if (!res.ok) {
+                    if (this._cache.pastas) return this._cache.pastas;
+                    throw new Error("Erro na rede ao buscar listas do usuário.");
+                }
+
+                const dados = await res.json();
+                this._cache.pastas = dados || [];
+                salvarCacheUsuario(this._cache);
+                return this._cache.pastas;
             },
 
             /** Retorna todos os materiais vinculados a uma lista específica. */
             async obterMateriaisDaLista(nomeLista) {
+                const cached = this._cache.materiaisPorPasta[nomeLista];
+                if (cached) {
+                    return cached;
+                }
+
                 const res = await fetch(`/api/usuario/listas/${encodeURIComponent(nomeLista)}/materiais`);
-                if (!res.ok) throw new Error(`Erro ao buscar materiais da lista: ${nomeLista}`);
-                return await res.json();
+                if (!res.ok) {
+                    if (cached) return cached;
+                    throw new Error(`Erro ao buscar materiais da lista: ${nomeLista}`);
+                }
+
+                const dados = await res.json();
+                const itens = dados.itens || dados || [];
+                this._cache.materiaisPorPasta[nomeLista] = itens;
+                salvarCacheUsuario(this._cache);
+                return itens;
             },
 
             /** Realiza um JOIN no banco e retorna o inventário completo do usuário. */
@@ -159,7 +264,13 @@ export const API = {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nome_lista: nomeLista })
                 });
-                return await res.json();
+                const dados = await res.json();
+                if (dados.sucesso || !dados.erro) {
+                    this._cache.pastas = null;
+                    this._cache.materiaisPorPasta = {};
+                    salvarCacheUsuario(this._cache);
+                }
+                return dados;
             },
 
             /** Insere (ou atualiza) um material e cria o vínculo com a lista. 
@@ -174,7 +285,16 @@ export const API = {
                         nome_anterior: nomeAnterior 
                     })
                 });
-                return await res.json();
+                const dados = await res.json();
+                if (dados.sucesso || !dados.erro) {
+                    this._cache.pastas = null;
+                    delete this._cache.materiaisPorPasta[nomeLista];
+                    if (nomeAnterior && nomeAnterior !== nomeLista) {
+                        delete this._cache.materiaisPorPasta[nomeAnterior];
+                    }
+                    salvarCacheUsuario(this._cache);
+                }
+                return dados;
             },
 
             // ==========================================
@@ -188,7 +308,14 @@ export const API = {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nome_novo: nomeNovo })
                 });
-                return await res.json();
+                const dados = await res.json();
+                if (dados.sucesso || !dados.erro) {
+                    this._cache.pastas = null;
+                    this._cache.materiaisPorPasta[nomeNovo] = this._cache.materiaisPorPasta[nomeAntigo] || null;
+                    delete this._cache.materiaisPorPasta[nomeAntigo];
+                    salvarCacheUsuario(this._cache);
+                }
+                return dados;
             },
 
             // ==========================================
@@ -200,7 +327,13 @@ export const API = {
                 const res = await fetch(`/api/usuario/listas/${encodeURIComponent(nomeLista)}`, {
                     method: 'DELETE'
                 });
-                return await res.json();
+                const dados = await res.json();
+                if (dados.sucesso || !dados.erro) {
+                    this._cache.pastas = null;
+                    delete this._cache.materiaisPorPasta[nomeLista];
+                    salvarCacheUsuario(this._cache);
+                }
+                return dados;
             },
 
             /** Remove o vínculo N:N entre o material e a lista específica. */
@@ -208,7 +341,16 @@ export const API = {
                 const res = await fetch(`/api/usuario/listas/${encodeURIComponent(nomeLista)}/materiais/${encodeURIComponent(idOuNomeMaterial)}`, {
                     method: 'DELETE'
                 });
-                return await res.json();
+                const dados = await res.json();
+                if (dados.sucesso || !dados.erro) {
+                    if (this._cache.materiaisPorPasta[nomeLista]) {
+                        this._cache.materiaisPorPasta[nomeLista] = this._cache.materiaisPorPasta[nomeLista].filter(item =>
+                            item.id !== idOuNomeMaterial && item.nome !== idOuNomeMaterial
+                        );
+                        salvarCacheUsuario(this._cache);
+                    }
+                }
+                return dados;
             },
 
             // ==========================================

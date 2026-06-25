@@ -87,3 +87,79 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* Ícones de ação dentro do card da pasta - data 24/06/2026 ======================================= */
+
+/* 1. Referência de Posicionamento para os ícones */
+.material-card.pasta-card {
+    position: relative;
+    /* Suas outras regras existentes (background, padding, border) */
+}
+
+/* 2. Container dos Ícones (Escondido por padrão) */
+.material-card.pasta-card .card-actions-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    
+    /* Estado Inicial: Oculto com transição suave */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+/* Aplica o comportamento tanto nos cards de pasta quanto nos cards de materiais */
+.material-card.pasta-card,
+.material-card {
+    position: relative;
+}
+
+.material-card.pasta-card .card-actions-container,
+.material-card .card-actions-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+/* Ativa o hover para ambos */
+.material-card.pasta-card:hover .card-actions-container,
+.material-card:hover .card-actions-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 3. Gatilho Runtime: Exibe os ícones no hover do card */
+.material-card.pasta-card:hover .card-actions-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 4. Estilo minimalista dos novos botões de ícone */
+.btn-icon-pasta {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 1rem; /* Tamanho do emoji */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+/* Feedback de hover específico no ícone */
+.btn-icon-pasta.btn-renomear-pasta:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-icon-pasta.btn-excluir-pasta:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+}
