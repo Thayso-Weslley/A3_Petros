@@ -4,13 +4,6 @@ from flask import Flask
 def create_app():
     # Passamos a configuração das pastas para a fábrica
     app = Flask(__name__, template_folder='templates', static_folder='static')
-    
-    # CHAVE DE SEGURANÇA: Necessária para criptografar os cookies de sessão (Login)
-    app.secret_key = 'engenhapp_secret_key_super_protegida'
-    
-    # Importação tardia e registro do Blueprint de Autenticação
-    from app.api.auth_routes import auth_bp
-    app.register_blueprint(auth_bp)
 
     # Importação tardia e registro dos demais Blueprints
     from app.api.dinamica.lei_de_Newton_routes import lei_de_Newton_bp
