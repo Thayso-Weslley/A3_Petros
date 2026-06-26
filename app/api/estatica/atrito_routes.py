@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from Formulas_e_Calculos.estatica.atrito import Atrito
 
-atrito_bp = Blueprint('atrito_api', __name__, url_prefix='/api/atrito')
+atrito_bp = Blueprint('atrito_api', __name__, url_prefix='/api/estatica/atrito')
 
 @atrito_bp.route('/calcular', methods=['POST'])
 def calcular_atrito():

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from Formulas_e_Calculos.estatica.momento import Momento
 
-momento_bp = Blueprint('momento_api', __name__, url_prefix='/api/momento')
+momento_bp = Blueprint('momento_api', __name__, url_prefix='/api/estatica/momento')
 
 @momento_bp.route('/calcular', methods=['POST'])
 def calcular_momento():
