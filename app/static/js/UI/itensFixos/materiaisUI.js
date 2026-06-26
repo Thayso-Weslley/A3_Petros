@@ -9,12 +9,12 @@
 // (esqueleto de tela, card, ficha técnica, botão, modal). A lógica
 // de navegação/estado é toda própria desta classe.
 
-import { API } from '../../api.js';
 import { BaseCatalogoUI } from '../abstrata/baseCatalogoUI.js';
 
 export class MateriaisUI extends BaseCatalogoUI {
-    constructor() {
+    constructor(ApiDosMateriais) {
         super();
+        this.api = ApiDosMateriais;
         this.nomeMenu = "🌐 Lista On-line";
         this.materiaisCache = [];
         this.paginaAtual = 1;
@@ -39,7 +39,7 @@ export class MateriaisUI extends BaseCatalogoUI {
     async carregarDados() {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
         try {
-            const resultado = await API.materiais.obterCatalogo();
+            const resultado = await this.api.obterCatalogo();
             this.materiaisCache = resultado.itens || [];
             this.temMaisItens = resultado.tem_mais || false;
 
@@ -139,7 +139,7 @@ export class MateriaisUI extends BaseCatalogoUI {
         this.container.querySelector('#btn-salvar-inventario').addEventListener('click', async () => {
             modal.style.display = 'flex';
             try {
-                const listas = await API.materiais.usuario.obterListas();
+                const listas = await this.api.usuario.obterListas();
                 selectListas.innerHTML = '<option value="">-- Selecionar lista existente --</option>';
 
                 if (listas && listas.length > 0) {
@@ -170,7 +170,7 @@ export class MateriaisUI extends BaseCatalogoUI {
             }
 
             try {
-                const resultado = await API.materiais.usuario.adicionar(listaDestino, material);
+                const resultado = await this.api.usuario.adicionar(listaDestino, material);
 
                 if (resultado.sucesso) {
                     alert(resultado.mensagem || "Material salvo com sucesso!");
