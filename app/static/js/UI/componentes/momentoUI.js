@@ -1,8 +1,11 @@
-import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
-import { API } from '../api.js';
+import { BaseCalculoUI } from '../abstrata/baseCalculoUI.js';
 
 export class momentoUI extends BaseCalculoUI {
-    constructor() {
+    /**
+     * Objeto da tela de cálculo de momento (torque).
+     * @param {Function} ApiCalculoMomento: Função usada para calcular o momento, fornecida pela API.
+     */
+    constructor(ApiCalculoMomento) {
         super(
             "🧮 Cálculo de Momento (Torque)",
             [
@@ -11,7 +14,7 @@ export class momentoUI extends BaseCalculoUI {
                 { id: "angulo", label: "ÂNGULO (θ)", si: "°", placeholder: "Ângulo em graus", padrao: 90 },
                 { id: "momento", label: "MOMENTO ESTÁTICO", si: "N·m", placeholder: "Momento gerado (N·m)" }
             ],
-            API.estatica.calcularMomento,
+            ApiCalculoMomento,
             "💡 Deixe em branco exatamente o campo que deseja calcular. O ângulo padrão é 90°."
         );
         

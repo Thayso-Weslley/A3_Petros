@@ -1,8 +1,11 @@
-import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
-import { API } from '../api.js';
+import { BaseCalculoUI } from '../abstrata/baseCalculoUI.js';
 
 export class energia_cineticaUI extends BaseCalculoUI {
-    constructor() {
+    /**
+     * Objeto da tela de cálculo de energia cinética.
+     * @param {Function} ApiCalculoEnergiaCinetica: Função usada para calcular a energia cinética, fornecida pela API. 
+     */
+    constructor(ApiCalculoEnergiaCinetica) {
         super(
             "🧮 Energia Cinética",
             [
@@ -10,7 +13,7 @@ export class energia_cineticaUI extends BaseCalculoUI {
                 { id: "velocidade", label: "VELOCIDADE", si: "m/s", placeholder: "Velocidade (m/s)" },
                 { id: "energia", label: "ENERGIA CINÉTICA", si: "J", placeholder: "Energia (J)" }
             ],
-            API.dinamica.calcularEnergiaCinetica,
+            ApiCalculoEnergiaCinetica,
             "💡 Deixe em branco exatamente o campo que deseja calcular."
         );
         

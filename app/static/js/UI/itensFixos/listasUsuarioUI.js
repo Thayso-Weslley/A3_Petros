@@ -12,12 +12,12 @@
 // (esqueleto de tela, card, ficha técnica, botão). A lógica de
 // navegação/estado (pastas, pasta aberta) é toda própria desta classe.
 
-import { API } from '../../api.js';
 import { BaseCatalogoUI } from '../abstrata/baseCatalogoUI.js';
 
 export class ListasUsuarioUI extends BaseCatalogoUI {
-    constructor() {
+    constructor(ApiDoUsuario) {
         super();
+        this.api = ApiDoUsuario;
         this.nomeMenu = "📁 Meus Inventários";
         this.tituloSecao = "📁 Meus Inventários Privados";
         this.subtituloSecao = "Selecione uma pasta para gerenciar seus materiais e semicondutores.";
@@ -62,7 +62,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
     async carregarPastas() {
         const listaContainer = this.container.querySelector('#catalogo-lista-container');
         try {   
-            const listas = await API.materiais.usuario.obterListas();
+            const listas = await this.api.obterListas();
             this.pastasCache = listas || [];
 
             this.exibirPastas(this.pastasCache);
@@ -160,7 +160,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         if (!nomeLimpo) return;
 
         try {
-            const resultado = await API.materiais.usuario.criarLista(nomeLimpo);
+            const resultado = await this.api.criarLista(nomeLimpo);
             if (resultado.sucesso || !resultado.erro) {
                 await this.carregarPastas();
             } else {
@@ -178,7 +178,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         if (!nomeLimpo || nomeLimpo === nomeAntigo) return;
 
         try {
-            const resultado = await API.materiais.usuario.renomearLista(nomeAntigo, nomeLimpo);
+            const resultado = await this.api.renomearLista(nomeAntigo, nomeLimpo);
             if (resultado.sucesso || !resultado.erro) {
                 await this.carregarPastas();
             } else {
@@ -194,7 +194,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         if (!confirm(`Tem certeza que deseja excluir a lista "${nomeLista}" e todos os vínculos com seus materiais? Esta ação não pode ser desfeita.`)) return;
 
         try {
-            const resultado = await API.materiais.usuario.deletarLista(nomeLista);
+            const resultado = await this.api.deletarLista(nomeLista);
             if (resultado.sucesso || !resultado.erro) {
                 await this.carregarPastas();
             } else {
@@ -240,7 +240,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         listaContainer.innerHTML = '<p class="loading-text">Buscando materiais da pasta...</p>';
 
         try {
-            const resultado = await API.materiais.usuario.obterMateriaisDaLista(nomePasta);
+            const resultado = await this.api.obterMateriaisDaLista(nomePasta);
             this.materiaisCache = resultado.itens || resultado || [];
             this.materiaisCachePorPasta[nomePasta] = this.materiaisCache;
 
@@ -293,7 +293,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
         
         try {
             const idOuNome = material.id || material.nome;
-            const resultado = await API.materiais.usuario.deletarMaterial(this.pastaAberta, idOuNome);
+            const resultado = await this.api.deletarMaterial(this.pastaAberta, idOuNome);
 
             if (resultado.sucesso || !resultado.erro) {
                 alert("Material removido com sucesso!");
@@ -388,7 +388,7 @@ export class ListasUsuarioUI extends BaseCatalogoUI {
             if (!confirm(`Enviar "${material.nome}" para a fila de homologação do catálogo central?`)) return;
 
             try {
-                const resultado = await API.materiais.usuario.compartilharComCentral(this.pastaAberta, material.nome);
+                const resultado = await this.api.compartilharComCentral(this.pastaAberta, material.nome);
                 if (resultado.sucesso || !resultado.erro) {
                     alert(resultado.mensagem || "Material enviado para homologação!");
                 } else {

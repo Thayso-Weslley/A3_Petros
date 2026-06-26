@@ -1,8 +1,11 @@
-import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
-import { API } from '../api.js';
+import { BaseCalculoUI } from '../abstrata/baseCalculoUI.js';
 
 export class formula_de_NavierUI extends BaseCalculoUI {
-    constructor() {
+    /**
+     * Objeto da tela de cálculo da Fórmula de Navier (Vigas).
+     * @param {Function} ApiCalculoNavier: Função usada para calcular a tensão máxima em vigas, fornecida pela API. 
+     */
+    constructor(ApiCalculoNavier) {
         super(
             "📐 Structural Dimensioning - Fórmula de Navier",
             [
@@ -11,7 +14,7 @@ export class formula_de_NavierUI extends BaseCalculoUI {
                 { id: "tensao_escoamento", label: "TENSÃO DE ESCOAMENTO (σy)", si: "Pa", placeholder: "Resistência limite do material" },
                 { id: "coeficiente_seguranca", label: "COEFICIENTE DE SEGURANÇA (FS)", si: "unid.", placeholder: "Padrão da norma: 1.67", padrao: 1.67 }
             ],
-            API.engenharia.calcularNavier,
+            ApiCalculoNavier,
             `💡 <strong>Diretrizes de Operação:</strong><br>
              • <strong>Verificação Estrutural:</strong> Preencha os 3 primeiros campos para analisar se a viga suporta a carga.<br>
              • <strong>Dimensionamento de Limites:</strong> Deixe exatamente UM dos 3 primeiros campos em branco para descobrir sua barreira segura de projeto.`,

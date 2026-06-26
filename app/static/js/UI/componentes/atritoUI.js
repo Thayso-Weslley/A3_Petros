@@ -1,8 +1,11 @@
-import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
-import { API } from '../api.js';
+import { BaseCalculoUI } from '../abstrata/baseCalculoUI.js';
 
 export class atritoUI extends BaseCalculoUI {
-    constructor() {
+    /**
+     * 
+     * @param {Function} ApiCalcularAtrito: Função que representa a API para cálculos de física.
+     */
+    constructor(ApiCalcularAtrito) {
         super(
             "🧮 Cálculo de Força de Atrito",
             [
@@ -10,10 +13,9 @@ export class atritoUI extends BaseCalculoUI {
                 { id: "normal", label: "FORÇA NORMAL (N)", si: "N", placeholder: "Força Normal (N)" },
                 { id: "atrito", label: "FORÇA DE ATRITO (Fat)", si: "N", placeholder: "Força de Atrito (N)" }
             ],
-            API.estatica.calcularAtrito,
+            ApiCalcularAtrito,
             "💡 Deixe em branco exatamente o campo que deseja calcular."
         );
-        
         this.nomeMenu = "Força de Atrito";
     }
 }

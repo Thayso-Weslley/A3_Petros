@@ -1,8 +1,11 @@
-import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
-import { API } from '../api.js';
+import { BaseCalculoUI } from '../abstrata/baseCalculoUI.js';
 
 export class equacao_de_EulerUI extends BaseCalculoUI {
-    constructor() {
+    /**
+     * Objeto da tela de cálculo da Equação de Euler (Flambagem).
+     * @param {Function} ApiCalcularEuler: Função usada para calcular a carga crítica de flambagem, fornecida pela API. 
+     */
+    constructor(ApiCalcularEuler) {
         super(
             "🔮 Structural Stability - Equação de Euler",
             [
@@ -24,7 +27,7 @@ export class equacao_de_EulerUI extends BaseCalculoUI {
                 },
                 { id: "coeficiente_seguranca", label: "COEFICIENTE DE SEGURANÇA (FS)", si: "unid.", placeholder: "Padrão: 2.5", padrao: 2.5 }
             ],
-            API.engenharia.calcularEuler,
+            ApiCalcularEuler,
             `💡 <strong>Diretrizes:</strong> Preencha as 4 variáveis para verificar a estabilidade ou deixe exatamente UMA em branco para dimensionar.`,
             { validacaoAutomatica: false } // 🔥 Desativa a automação aqui!
         );

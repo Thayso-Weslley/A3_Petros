@@ -21,7 +21,6 @@ function carregarCacheUsuario() {
     }
 }
 
-
 function salvarCacheUsuario(cache) {
     try {
         sessionStorage.setItem(USUARIO_CACHE_STORAGE_KEY, JSON.stringify(cache));

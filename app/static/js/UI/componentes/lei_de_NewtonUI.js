@@ -1,8 +1,11 @@
-import { BaseCalculoUI } from './abstrata/baseCalculoUI.js';
-import { API } from '../api.js';
+import { BaseCalculoUI } from '../abstrata/baseCalculoUI.js';
 
 export class lei_de_NewtonUI extends BaseCalculoUI {
-    constructor() {
+    /**
+     * Objeto da tela de cálculo da 2° Lei de Newton.
+     * @param {Function} ApiCalculoNewton: Função usada para calcular a força resultante, fornecida pela API. 
+     */
+    constructor(ApiCalculoNewton) {
         super(
             "🧮 2° Lei de Newton",
             [
@@ -10,7 +13,7 @@ export class lei_de_NewtonUI extends BaseCalculoUI {
                 { id: "aceleracao", label: "ACELERAÇÃO", si: "m/s²", placeholder: "Aceleração (m/s²)" },
                 { id: "forca", label: "FORÇA", si: "N", placeholder: "Força (N)" }
             ],
-            API.dinamica.calcularSegundaLei,
+            ApiCalculoNewton,
             "💡 Deixe em branco exatamente o campo que deseja calcular."
         );
         
